@@ -1,0 +1,136 @@
+package tn.esprit.spring.Bloc;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import tn.esprit.spring.DAO.Entities.Bloc;
+import tn.esprit.spring.DAO.Entities.Chambre;
+import tn.esprit.spring.DAO.Entities.Foyer;
+import tn.esprit.spring.DAO.Repositories.BlocRepository;
+import tn.esprit.spring.DAO.Repositories.ChambreRepository;
+import tn.esprit.spring.DAO.Repositories.FoyerRepository;
+import tn.esprit.spring.Services.Bloc.BlocService;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class BlocServiceTest {
+
+    @Mock
+    private BlocRepository blocRepository;
+
+    @Mock
+    private ChambreRepository chambreRepository;
+
+    @Mock
+    private FoyerRepository foyerRepository;
+
+    @InjectMocks
+    private BlocService blocService;
+
+    private Bloc bloc;
+    private Chambre chambre;
+
+    @BeforeEach
+    void setup() {
+        chambre = new Chambre();
+        chambre.setNumeroChambre(101L);
+
+        bloc = new Bloc();
+        bloc.setIdBloc(1L);
+        bloc.setNomBloc("Bloc A");
+        bloc.setChambres(List.of(chambre));
+    }
+
+    @Test
+    void testAddOrUpdate() {
+        when(blocRepository.save(any(Bloc.class))).thenReturn(bloc);
+        when(chambreRepository.save(any(Chambre.class))).thenReturn(chambre);
+
+        Bloc result = blocService.addOrUpdate(bloc);
+
+        assertNotNull(result);
+        assertEquals("Bloc A", result.getNomBloc());
+        verify(blocRepository).save(bloc);
+        verify(chambreRepository).save(any(Chambre.class));
+    }
+
+    @Test
+    void testFindAll() {
+        when(blocRepository.findAll()).thenReturn(List.of(bloc));
+        List<Bloc> blocs = blocService.findAll();
+        assertEquals(1, blocs.size());
+    }
+
+    @Test
+    void testFindById() {
+        when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc));
+        Bloc result = blocService.findById(1L);
+        assertEquals("Bloc A", result.getNomBloc());
+    }
+
+    @Test
+    void testDeleteById() {
+        when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc));
+        blocService.deleteById(1L);
+        verify(chambreRepository).deleteAll(bloc.getChambres());
+        verify(blocRepository).delete(bloc);
+    }
+
+    @Test
+    void testDelete() {
+        blocService.delete(bloc);
+        verify(chambreRepository).deleteAll(bloc.getChambres());
+        verify(blocRepository).delete(bloc);
+    }
+
+    @Test
+    void testAffecterChambresABloc() {
+        Bloc b = new Bloc();
+        b.setNomBloc("Bloc A");
+        when(blocRepository.findByNomBloc("Bloc A")).thenReturn(b);
+        when(chambreRepository.findByNumeroChambre(101L)).thenReturn(chambre);
+
+        Bloc result = blocService.affecterChambresABloc(List.of(101L), "Bloc A");
+        assertNotNull(result);
+        verify(chambreRepository).save(any(Chambre.class));
+    }
+
+    @Test
+    void testAffecterBlocAFoyer() {
+        Foyer foyer = new Foyer();
+        foyer.setNomFoyer("Foyer 1");
+        when(blocRepository.findByNomBloc("Bloc A")).thenReturn(bloc);
+        when(foyerRepository.findByNomFoyer("Foyer 1")).thenReturn(foyer);
+        when(blocRepository.save(bloc)).thenReturn(bloc);
+
+        Bloc result = blocService.affecterBlocAFoyer("Bloc A", "Foyer 1");
+        assertEquals("Bloc A", result.getNomBloc());
+        verify(blocRepository).save(bloc);
+    }
+
+    @Test
+    void testAjouterBlocEtSesChambres() {
+        when(chambreRepository.save(any(Chambre.class))).thenReturn(chambre);
+        Bloc result = blocService.ajouterBlocEtSesChambres(bloc);
+        assertEquals("Bloc A", result.getNomBloc());
+    }
+
+    @Test
+    void testAjouterBlocEtAffecterAFoyer() {
+        Foyer f = new Foyer();
+        f.setNomFoyer("Foyer 1");
+        when(foyerRepository.findByNomFoyer("Foyer 1")).thenReturn(f);
+        when(blocRepository.save(any(Bloc.class))).thenReturn(bloc);
+
+        Bloc result = blocService.ajouterBlocEtAffecterAFoyer(bloc, "Foyer 1");
+        assertNotNull(result);
+        assertEquals("Bloc A", result.getNomBloc());
+    }
+}

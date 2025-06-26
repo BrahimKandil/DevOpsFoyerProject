@@ -1,0 +1,103 @@
+package tn.esprit.spring.Universite;
+
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
+import tn.esprit.spring.Services.Universite.UniversiteService;
+
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+
+class UniversiteServiceTest {
+
+    @Mock
+    private UniversiteRepository universiteRepository;
+
+    @InjectMocks
+    private UniversiteService universiteService;
+
+    private Universite universite;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        universite = Universite.builder()
+                .idUniversite(1L)
+                .nomUniversite("Université de Tunis")
+                .adresse("Rue de la Paix")
+                .build();
+    }
+
+    @Test
+    void testAddOrUpdate() {
+        when(universiteRepository.save(universite)).thenReturn(universite);
+
+        Universite result = universiteService.addOrUpdate(universite);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getNomUniversite()).isEqualTo("Université de Tunis");
+        verify(universiteRepository, times(1)).save(universite);
+    }
+
+    @Test
+    void testFindAll() {
+        List<Universite> list = Collections.singletonList(universite);
+        when(universiteRepository.findAll()).thenReturn(list);
+
+        List<Universite> result = universiteService.findAll();
+
+        assertThat(result).isNotEmpty();
+        assertThat(result).hasSize(1);
+        verify(universiteRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testFindById() {
+        when(universiteRepository.findById(1L)).thenReturn(Optional.of(universite));
+
+        Universite result = universiteService.findById(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getIdUniversite()).isEqualTo(1L);
+        verify(universiteRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testDeleteById() {
+        doNothing().when(universiteRepository).deleteById(1L);
+
+        universiteService.deleteById(1L);
+
+        verify(universiteRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDelete() {
+        doNothing().when(universiteRepository).delete(universite);
+
+        universiteService.delete(universite);
+
+        verify(universiteRepository, times(1)).delete(universite);
+    }
+
+    @Test
+    void testAjouterUniversiteEtSonFoyer() {
+        when(universiteRepository.save(universite)).thenReturn(universite);
+
+        Universite result = universiteService.ajouterUniversiteEtSonFoyer(universite);
+
+        assertThat(result).isNotNull();
+        verify(universiteRepository, times(1)).save(universite);
+    }
+}
+
