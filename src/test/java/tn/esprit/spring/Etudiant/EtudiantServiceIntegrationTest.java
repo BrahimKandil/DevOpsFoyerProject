@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @Transactional
 public class EtudiantServiceIntegrationTest {
@@ -40,6 +39,7 @@ public class EtudiantServiceIntegrationTest {
                 .build();
 
         Etudiant saved = etudiantService.addOrUpdate(etudiant);
+        assertThat(saved).isNotNull();
         assertThat(saved.getIdEtudiant()).isNotNull();
 
         Etudiant found = etudiantService.findById(saved.getIdEtudiant());
@@ -67,6 +67,7 @@ public class EtudiantServiceIntegrationTest {
         etudiantService.addOrUpdate(e2);
 
         List<Etudiant> all = etudiantService.findAll();
+        assertThat(all).isNotNull();
         assertThat(all.size()).isGreaterThanOrEqualTo(2);
     }
 
@@ -81,6 +82,8 @@ public class EtudiantServiceIntegrationTest {
                 .build();
 
         Etudiant saved = etudiantService.addOrUpdate(etudiant);
+        assertThat(saved).isNotNull();
+        assertThat(saved.getIdEtudiant()).isNotNull();
 
         etudiantService.deleteById(saved.getIdEtudiant());
         assertThat(etudiantRepository.findById(saved.getIdEtudiant())).isEmpty();
@@ -94,6 +97,9 @@ public class EtudiantServiceIntegrationTest {
                 .build();
 
         Etudiant saved2 = etudiantService.addOrUpdate(et2);
+        assertThat(saved2).isNotNull();
+        assertThat(saved2.getIdEtudiant()).isNotNull();
+
         etudiantService.delete(saved2);
         assertThat(etudiantRepository.findById(saved2.getIdEtudiant())).isEmpty();
     }
@@ -111,15 +117,18 @@ public class EtudiantServiceIntegrationTest {
         etudiantService.addOrUpdate(etudiant);
 
         List<Etudiant> list = etudiantService.selectJPQL("JPQLName");
+        assertThat(list).isNotNull();
         assertThat(list).isNotEmpty();
         assertThat(list.get(0).getNomEt()).isEqualTo("JPQLName");
     }
 
     @Test
     public void testAffecterAndDesaffecterReservation() {
-        // Create reservation (assuming you have a constructor or builder)
         Reservation res = new Reservation();
+        res.setIdReservation(String.valueOf(1L)); // Manually assign ID to fix your error
         res = reservationRepository.save(res);
+        assertThat(res).isNotNull();
+        assertThat(res.getIdReservation()).isNotNull();
 
         Etudiant etudiant = Etudiant.builder()
                 .nomEt("ResUser")
@@ -130,6 +139,8 @@ public class EtudiantServiceIntegrationTest {
                 .build();
 
         etudiant = etudiantService.addOrUpdate(etudiant);
+        assertThat(etudiant).isNotNull();
+        assertThat(etudiant.getIdEtudiant()).isNotNull();
 
         // Affect reservation
         etudiantService.affecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(), etudiant.getPrenomEt());
@@ -144,4 +155,5 @@ public class EtudiantServiceIntegrationTest {
         assertThat(updated.getReservations()).doesNotContain(res);
     }
 }
+
 

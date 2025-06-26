@@ -11,6 +11,7 @@ import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 import tn.esprit.spring.DAO.Repositories.ReservationRepository;
 import tn.esprit.spring.Services.Etudiant.EtudiantService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,7 +112,7 @@ public class EtudiantServiceTest {
         String prenom = "Ali";
 
         Reservation res = new Reservation();
-        Etudiant et = Etudiant.builder().nomEt(nom).prenomEt(prenom).build();
+        Etudiant et = Etudiant.builder().nomEt(nom).prenomEt(prenom).reservations(new ArrayList<>()).build();
 
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(res));
         when(etudiantRepository.getByNomEtAndPrenomEt(nom, prenom)).thenReturn(et);
@@ -132,7 +133,11 @@ public class EtudiantServiceTest {
         String prenom = "Ali";
 
         Reservation res = new Reservation();
-        Etudiant et = Etudiant.builder().nomEt(nom).prenomEt(prenom).build();
+        Etudiant et = Etudiant.builder()
+                .nomEt(nom)
+                .prenomEt(prenom)
+                .reservations(new ArrayList<>())  // <--- Fix here
+                .build();
         et.getReservations().add(res);
 
         when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(res));
@@ -146,4 +151,5 @@ public class EtudiantServiceTest {
         verify(etudiantRepository).getByNomEtAndPrenomEt(nom, prenom);
         verify(etudiantRepository).save(et);
     }
+
 }

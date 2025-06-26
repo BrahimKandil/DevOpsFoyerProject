@@ -15,7 +15,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @Transactional
 class BlocServiceIntegrationTest {
@@ -38,6 +37,7 @@ class BlocServiceIntegrationTest {
 
         Bloc result = blocService.addOrUpdate(bloc);
 
+        assertNotNull(result);
         assertNotNull(result.getIdBloc());
         assertEquals("Bloc Alpha", result.getNomBloc());
     }
@@ -55,17 +55,19 @@ class BlocServiceIntegrationTest {
 
     @Test
     void testAddOrUpdateWithChambres() {
-        Chambre chambre = new Chambre();
-        chambre.setNumeroChambre(101L);
-
         Bloc bloc = Bloc.builder()
                 .nomBloc("Bloc Beta")
                 .capaciteBloc(200)
-                .chambres(List.of(chambre))
                 .build();
+
+        Chambre chambre = new Chambre();
+        chambre.setNumeroChambre(101L);
+        chambre.setBloc(bloc); // set back-reference
+        bloc.setChambres(List.of(chambre));
 
         Bloc saved = blocService.addOrUpdate(bloc);
 
+        assertNotNull(saved);
         assertNotNull(saved.getIdBloc());
         assertEquals(1, saved.getChambres().size());
         assertEquals(saved, saved.getChambres().get(0).getBloc());
@@ -73,17 +75,16 @@ class BlocServiceIntegrationTest {
 
     @Test
     void testAffecterBlocAFoyer() {
-        // Setup
         Foyer foyer = new Foyer();
         foyer.setNomFoyer("Foyer Central");
         foyer = foyerRepository.save(foyer);
 
         Bloc bloc = Bloc.builder().nomBloc("Bloc C").capaciteBloc(80).build();
-        blocRepository.save(bloc);
+        bloc = blocRepository.save(bloc);
 
-        // Execute
         Bloc updated = blocService.affecterBlocAFoyer("Bloc C", "Foyer Central");
 
+        assertNotNull(updated);
         assertNotNull(updated.getFoyer());
         assertEquals("Foyer Central", updated.getFoyer().getNomFoyer());
     }

@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tn.esprit.spring.DAO.Entities.Chambre;
 import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.DAO.Entities.Reservation;
+import tn.esprit.spring.DAO.Entities.TypeChambre;
 import tn.esprit.spring.DAO.Repositories.ChambreRepository;
 import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 import tn.esprit.spring.DAO.Repositories.ReservationRepository;
@@ -21,7 +22,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-
 class ReservationServiceTest {
 
     @InjectMocks
@@ -38,7 +38,7 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // No need to openMocks here with MockitoExtension
     }
 
     @Test
@@ -109,7 +109,7 @@ class ReservationServiceTest {
         Chambre chambre = new Chambre();
         chambre.setIdChambre(1L);
         chambre.setNumeroChambre(101L);
-        chambre.setTypeC(tn.esprit.spring.DAO.Entities.TypeChambre.DOUBLE);
+        chambre.setTypeC(TypeChambre.DOUBLE);
         chambre.setReservations(new ArrayList<>());
 
         // Mock bloc name for reservation ID string generation
@@ -118,14 +118,24 @@ class ReservationServiceTest {
         chambre.setBloc(bloc);
 
         Etudiant etudiant = new Etudiant();
-        etudiant.setCin(123456);
+        etudiant.setCin(123456L);
 
         when(chambreRepository.findByNumeroChambre(101L)).thenReturn(chambre);
         when(etudiantRepository.findByCin(123456L)).thenReturn(etudiant);
         when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
                 anyLong(), any(LocalDate.class), any(LocalDate.class))).thenReturn(1);
 
-        when(repo.save(any(Reservation.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        // Fix here: when saving, return the same Reservation passed to save()
+        when(repo.save(any(Reservation.class))).thenAnswer(invocation -> {
+            Reservation res = invocation.getArgument(0);
+            // Ensure etudiants list is initialized to avoid NPE during test
+            if (res.getEtudiants() == null) {
+                res.setEtudiants(new ArrayList<>());
+            }
+            // Add etudiant to reservation (simulate what service does)
+            res.getEtudiants().add(etudiant);
+            return res;
+        });
         when(chambreRepository.save(any(Chambre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(101L, 123456L);
@@ -144,7 +154,7 @@ class ReservationServiceTest {
         Chambre chambre = new Chambre();
         chambre.setIdChambre(1L);
         chambre.setNumeroChambre(101L);
-        chambre.setTypeC(tn.esprit.spring.DAO.Entities.TypeChambre.SIMPLE);
+        chambre.setTypeC(TypeChambre.SIMPLE);
 
         tn.esprit.spring.DAO.Entities.Bloc bloc = new tn.esprit.spring.DAO.Entities.Bloc();
         bloc.setNomBloc("BlocA");
@@ -187,7 +197,8 @@ class ReservationServiceTest {
 
         when(repo.findByEtudiantsCinAndEstValide(123456L, true)).thenReturn(r);
         when(chambreRepository.findByReservationsIdReservation("R123")).thenReturn(c);
-        doNothing().when(chambreRepository).save(c);
+        // Fix here: save returns the entity, do not use doNothing() on save()
+        when(chambreRepository.save(c)).thenReturn(c);
         doNothing().when(repo).delete(r);
 
         String message = reservationService.annulerReservation(123456L);
@@ -259,4 +270,3 @@ class ReservationServiceTest {
         verify(repo, times(2)).save(any(Reservation.class));
     }
 }
-

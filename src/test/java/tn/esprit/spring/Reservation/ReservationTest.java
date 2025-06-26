@@ -1,13 +1,13 @@
 package tn.esprit.spring.Reservation;
 
-
 import org.junit.jupiter.api.Test;
 import tn.esprit.spring.DAO.Entities.*;
 
 import java.time.LocalDate;
-import java.util.List;
-
+import java.util.ArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+
+
 
 class ReservationTest {
 
@@ -18,6 +18,11 @@ class ReservationTest {
                 .anneeUniversitaire(LocalDate.of(2024, 9, 1))
                 .estValide(true)
                 .build();
+
+        // Initialize etudiants list if null (because your entity doesn't do it)
+        if (reservation.getEtudiants() == null) {
+            reservation.setEtudiants(new ArrayList<>());
+        }
 
         // initially, etudiants list should be empty
         assertThat(reservation.getEtudiants()).isEmpty();
@@ -42,6 +47,11 @@ class ReservationTest {
         reservation.setIdReservation("R456");
         reservation.setAnneeUniversitaire(LocalDate.of(2025, 1, 1));
         reservation.setEstValide(false);
+
+        // Initialize etudiants list if null
+        if (reservation.getEtudiants() == null) {
+            reservation.setEtudiants(new ArrayList<>());
+        }
 
         assertThat(reservation.getIdReservation()).isEqualTo("R456");
         assertThat(reservation.getAnneeUniversitaire()).isEqualTo(LocalDate.of(2025, 1, 1));

@@ -1,45 +1,52 @@
 package tn.esprit.spring.Reservation;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tn.esprit.spring.DAO.Entities.Reservation;
+import tn.esprit.spring.RestControllers.ReservationRestController;
 import tn.esprit.spring.Services.Reservation.IReservationService;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-
 class ReservationControllerTest {
 
-    @Mock
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private IReservationService service;
 
-    @Mock
     private ObjectMapper objectMapper;
 
     private Reservation reservation;
 
+    private ReservationRestController controller;
+
     @BeforeEach
     void setup() {
+        // instantiate controller with mocked service
+        controller = new ReservationRestController(service);
+
+        // build MockMvc standalone setup with controller
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+
+        // real ObjectMapper instance
+        objectMapper = new ObjectMapper();
+
         reservation = Reservation.builder()
                 .idReservation("R123")
                 .estValide(true)
@@ -148,4 +155,3 @@ class ReservationControllerTest {
         verify(service).annulerReservation(123456L);
     }
 }
-

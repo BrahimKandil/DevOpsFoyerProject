@@ -24,11 +24,12 @@ class UniversiteServiceIntegrationTest {
     @Autowired
     private UniversiteRepository universiteRepository;
 
-    private Universite universite;
+    private Universite universiteTemplate;
 
     @BeforeAll
     void init() {
-        universite = Universite.builder()
+        // Template entity; won't be saved directly
+        universiteTemplate = Universite.builder()
                 .nomUniversite("Université de Sousse")
                 .adresse("Avenue Habib Bourguiba")
                 .build();
@@ -36,17 +37,20 @@ class UniversiteServiceIntegrationTest {
 
     @Test
     void testAddOrUpdateAndFindById() {
+        Universite universite = cloneUniversite(universiteTemplate);
+
         Universite saved = universiteService.addOrUpdate(universite);
+        assertThat(saved).isNotNull();
         assertThat(saved.getIdUniversite()).isNotNull();
 
         Universite found = universiteService.findById(saved.getIdUniversite());
         assertThat(found).isNotNull();
-        assertThat(found.getNomUniversite()).isEqualTo("Université de Sousse");
+        assertThat(found.getNomUniversite()).isEqualTo(universite.getNomUniversite());
     }
 
     @Test
     void testFindAll() {
-        universiteService.addOrUpdate(universite);
+        universiteService.addOrUpdate(cloneUniversite(universiteTemplate));
 
         List<Universite> list = universiteService.findAll();
         assertThat(list).isNotEmpty();
@@ -54,7 +58,8 @@ class UniversiteServiceIntegrationTest {
 
     @Test
     void testDeleteAndDeleteById() {
-        Universite saved = universiteService.addOrUpdate(universite);
+        Universite u1 = cloneUniversite(universiteTemplate);
+        Universite saved = universiteService.addOrUpdate(u1);
 
         universiteService.deleteById(saved.getIdUniversite());
         assertThat(universiteRepository.findById(saved.getIdUniversite())).isEmpty();
@@ -79,5 +84,12 @@ class UniversiteServiceIntegrationTest {
         assertThat(saved).isNotNull();
         assertThat(saved.getIdUniversite()).isNotNull();
         assertThat(saved.getNomUniversite()).isEqualTo("Université de Monastir");
+    }
+
+    private Universite cloneUniversite(Universite source) {
+        return Universite.builder()
+                .nomUniversite(source.getNomUniversite())
+                .adresse(source.getAdresse())
+                .build();
     }
 }

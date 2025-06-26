@@ -3,14 +3,14 @@ package tn.esprit.spring.Etudiant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
 import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.RestControllers.EtudiantRestController;
 import tn.esprit.spring.Services.Etudiant.IEtudiantService;
@@ -20,23 +20,25 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
-class EtudiantControllerTest {
+@WebMvcTest(EtudiantRestController.class)
+public class EtudiantControllerTest {
 
-    @Mock
+    @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private IEtudiantService service;
 
-    @Mock
+    @Autowired
     private ObjectMapper objectMapper;
 
-    Etudiant sampleEtudiant;
+    private Etudiant sampleEtudiant;
 
     @BeforeEach
     void setup() {
@@ -48,6 +50,16 @@ class EtudiantControllerTest {
                 .ecole("ENIT")
                 .dateNaissance(LocalDate.of(1995, 5, 15))
                 .build();
+    }
+
+    @Test
+    void testFindAll() throws Exception {
+        when(service.findAll()).thenReturn(List.of(sampleEtudiant));
+
+        mockMvc.perform(get("/etudiant/findAll"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].idEtudiant").value(1L))
+                .andExpect(jsonPath("$[0].nomEt").value("Doe"));
     }
 
     @Test
@@ -63,16 +75,6 @@ class EtudiantControllerTest {
     }
 
     @Test
-    void testFindAll() throws Exception {
-        when(service.findAll()).thenReturn(List.of(sampleEtudiant));
-
-        mockMvc.perform(get("/etudiant/findAll"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].idEtudiant").value(1L))
-                .andExpect(jsonPath("$[0].nomEt").value("Doe"));
-    }
-
-    @Test
     void testFindById() throws Exception {
         when(service.findById(1L)).thenReturn(sampleEtudiant);
 
@@ -84,17 +86,26 @@ class EtudiantControllerTest {
 
     @Test
     void testDelete() throws Exception {
+        // For delete, just mock doNothing on service.delete
+        doNothing().when(service).delete(any(Etudiant.class));
+
         mockMvc.perform(delete("/etudiant/delete")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(sampleEtudiant)))
                 .andExpect(status().isOk());
+
+        verify(service).delete(any(Etudiant.class));
     }
 
     @Test
     void testDeleteById() throws Exception {
+        doNothing().when(service).deleteById(1L);
+
         mockMvc.perform(delete("/etudiant/deleteById")
                         .param("id", "1"))
                 .andExpect(status().isOk());
+
+        verify(service).deleteById(1L);
     }
 
     @Test

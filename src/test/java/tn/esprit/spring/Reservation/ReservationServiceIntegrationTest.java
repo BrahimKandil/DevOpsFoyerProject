@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)  // Allows non-static BeforeAll
 public class ReservationServiceIntegrationTest {
 
     @Autowired
@@ -37,18 +38,17 @@ public class ReservationServiceIntegrationTest {
     @Autowired
     private ReservationRepository reservationRepository;
 
-    private static Chambre chambre;
-    private static Etudiant etudiant;
+    private Chambre chambre;
+    private Etudiant etudiant;
 
     @BeforeAll
-    static void setupData(@Autowired ChambreRepository chambreRepo,
-                          @Autowired EtudiantRepository etudiantRepo) {
+    void setupData() {
         // Create and save a Chambre
         Chambre newChambre = Chambre.builder()
                 .numeroChambre(101L)
                 .typeC(TypeChambre.SIMPLE)
                 .build();
-        chambre = chambreRepo.save(newChambre);
+        chambre = chambreRepository.save(newChambre);
 
         // Create and save an Etudiant
         Etudiant newEtudiant = Etudiant.builder()
@@ -56,7 +56,7 @@ public class ReservationServiceIntegrationTest {
                 .prenomEt("TestPrenom")
                 .cin(12345678L)
                 .build();
-        etudiant = etudiantRepo.save(newEtudiant);
+        etudiant = etudiantRepository.save(newEtudiant);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class ReservationServiceIntegrationTest {
                 .build();
 
         Reservation saved = reservationService.addOrUpdate(res);
-        assertThat(saved).isNotNull();
+        assertThat(saved).isNotNull();  // Will fail if service returns null
         assertThat(saved.getIdReservation()).isEqualTo("R1");
     }
 
@@ -78,12 +78,13 @@ public class ReservationServiceIntegrationTest {
     void testFindAll() {
         List<Reservation> allReservations = reservationService.findAll();
         assertThat(allReservations).isNotNull();
-        assertThat(allReservations.size()).isGreaterThanOrEqualTo(0);
+        assertThat(allReservations.size()).isGreaterThanOrEqualTo(1);  // Because of the addOrUpdate test
     }
 
     @Test
     @Order(3)
     void testFindById() {
+        // Save explicitly to repository so it's guaranteed to exist
         Reservation res = Reservation.builder()
                 .idReservation("R2")
                 .anneeUniversitaire(LocalDate.now())
@@ -102,7 +103,9 @@ public class ReservationServiceIntegrationTest {
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(chambre.getNumeroChambre(), etudiant.getCin());
         assertThat(res).isNotNull();
         assertThat(res.getEtudiants()).extracting("cin").contains(etudiant.getCin());
-        assertThat(chambreRepository.findById(chambre.getIdChambre()).get().getReservations()).contains(res);
+
+        Chambre chambreFromDb = chambreRepository.findById(chambre.getIdChambre()).get();
+        assertThat(chambreFromDb.getReservations()).contains(res);
     }
 
     @Test

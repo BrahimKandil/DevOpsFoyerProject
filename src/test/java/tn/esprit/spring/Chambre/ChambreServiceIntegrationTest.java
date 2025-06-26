@@ -35,6 +35,8 @@ public class ChambreServiceIntegrationTest {
                 .capaciteBloc(100L)
                 .build();
         bloc = blocRepository.save(bloc);
+        assertThat(bloc).isNotNull();
+        assertThat(bloc.getIdBloc()).isNotNull();
 
         Chambre chambre = Chambre.builder()
                 .numeroChambre(1L)
@@ -43,6 +45,7 @@ public class ChambreServiceIntegrationTest {
                 .build();
 
         Chambre savedChambre = chambreService.addOrUpdate(chambre);
+        assertThat(savedChambre).isNotNull();
         assertThat(savedChambre.getIdChambre()).isNotNull();
         assertThat(savedChambre.getNumeroChambre()).isEqualTo(1L);
     }
@@ -52,6 +55,8 @@ public class ChambreServiceIntegrationTest {
         Bloc bloc = blocRepository.save(
                 Bloc.builder().nomBloc("Bloc B").capaciteBloc(50L).build()
         );
+        assertThat(bloc).isNotNull();
+        assertThat(bloc.getIdBloc()).isNotNull();
 
         Chambre ch1 = chambreService.addOrUpdate(
                 Chambre.builder().numeroChambre(101L).typeC(TypeChambre.SIMPLE).bloc(bloc).build()
@@ -59,8 +64,11 @@ public class ChambreServiceIntegrationTest {
         Chambre ch2 = chambreService.addOrUpdate(
                 Chambre.builder().numeroChambre(102L).typeC(TypeChambre.DOUBLE).bloc(bloc).build()
         );
+        assertThat(ch1).isNotNull();
+        assertThat(ch2).isNotNull();
 
         List<Chambre> chambres = chambreService.findAll();
+        assertThat(chambres).isNotNull();
         assertThat(chambres.size()).isGreaterThanOrEqualTo(2);
         assertThat(chambres).extracting(Chambre::getNumeroChambre).contains(101L, 102L);
     }
@@ -70,10 +78,14 @@ public class ChambreServiceIntegrationTest {
         Bloc bloc = blocRepository.save(
                 Bloc.builder().nomBloc("Bloc C").capaciteBloc(75L).build()
         );
+        assertThat(bloc).isNotNull();
+        assertThat(bloc.getIdBloc()).isNotNull();
 
         Chambre chambre = chambreService.addOrUpdate(
                 Chambre.builder().numeroChambre(303L).typeC(TypeChambre.TRIPLE).bloc(bloc).build()
         );
+        assertThat(chambre).isNotNull();
+        assertThat(chambre.getIdChambre()).isNotNull();
 
         Chambre found = chambreService.findById(chambre.getIdChambre());
         assertThat(found).isNotNull();
@@ -85,10 +97,14 @@ public class ChambreServiceIntegrationTest {
         Bloc bloc = blocRepository.save(
                 Bloc.builder().nomBloc("Bloc D").capaciteBloc(60L).build()
         );
+        assertThat(bloc).isNotNull();
+        assertThat(bloc.getIdBloc()).isNotNull();
 
         Chambre chambre = chambreService.addOrUpdate(
                 Chambre.builder().numeroChambre(404L).typeC(TypeChambre.SIMPLE).bloc(bloc).build()
         );
+        assertThat(chambre).isNotNull();
+        assertThat(chambre.getIdChambre()).isNotNull();
 
         chambreService.deleteById(chambre.getIdChambre());
 
@@ -101,12 +117,15 @@ public class ChambreServiceIntegrationTest {
         Bloc bloc = blocRepository.save(
                 Bloc.builder().nomBloc("Bloc Special").capaciteBloc(80L).build()
         );
+        assertThat(bloc).isNotNull();
+        assertThat(bloc.getIdBloc()).isNotNull();
 
         chambreService.addOrUpdate(
                 Chambre.builder().numeroChambre(505L).typeC(TypeChambre.DOUBLE).bloc(bloc).build()
         );
 
         List<Chambre> chambres = chambreService.getChambresParNomBloc("Bloc Special");
+        assertThat(chambres).isNotNull();
         assertThat(chambres).isNotEmpty();
         assertThat(chambres.get(0).getBloc().getNomBloc()).isEqualTo("Bloc Special");
     }
