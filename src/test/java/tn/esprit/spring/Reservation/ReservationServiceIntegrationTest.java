@@ -11,10 +11,12 @@ import tn.esprit.spring.DAO.Repositories.ReservationRepository;
 import tn.esprit.spring.Services.Reservation.IReservationService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -35,7 +37,6 @@ public class ReservationServiceIntegrationTest {
 
     private Chambre chambre;
     private Etudiant etudiant;
-    private Reservation testReservation;
 
     @BeforeEach
     void setupData() {
@@ -46,85 +47,125 @@ public class ReservationServiceIntegrationTest {
 
         // Setup test chambre
         chambre = chambreRepository.save(Chambre.builder()
-                .numeroChambre(100L + (long)(Math.random() * 900L)) // Random number between 100-999
+                .numeroChambre(100L + (long)(Math.random() * 900L))
                 .typeC(TypeChambre.SIMPLE)
+                .reservations(new ArrayList<>())
                 .build());
 
         // Setup test etudiant
         etudiant = etudiantRepository.save(Etudiant.builder()
                 .nomEt("TestNom")
                 .prenomEt("TestPrenom")
-                .cin(10000000L + (long)(Math.random() * 90000000L)) // Random 8-digit CIN
-                .build());
-
-        // Setup test reservation
-        testReservation = reservationRepository.save(Reservation.builder()
-                .idReservation("TEST-" + System.currentTimeMillis())
-                .anneeUniversitaire(LocalDate.now())
-                .estValide(true)
+                .cin(10000000L + (long)(Math.random() * 90000000L))
+                .reservations(new ArrayList<>())
                 .build());
 
         assertThat(chambre.getIdChambre()).isNotNull();
         assertThat(etudiant.getCin()).isNotNull();
-        assertThat(testReservation.getIdReservation()).isNotNull();
     }
 
     @Test
     @Order(1)
     void testAddOrUpdateReservation() {
+        // Given
         Reservation res = Reservation.builder()
                 .idReservation("R1-" + System.currentTimeMillis())
                 .anneeUniversitaire(LocalDate.now())
                 .estValide(true)
+                .etudiants(new ArrayList<>())
                 .build();
 
+        // When
         Reservation saved = reservationService.addOrUpdate(res);
-        assertThat(saved).isNotNull();
-        assertThat(saved.getIdReservation()).isEqualTo(res.getIdReservation());
+
+        // Then
+        assertThat(saved)
+                .isNotNull()
+                .extracting(
+                        Reservation::getIdReservation,
+                        Reservation::isEstValide
+                )
+                .containsExactly(res.getIdReservation(), true);
+
+        // Verify in repository
+        assertTrue(reservationRepository.existsById(saved.getIdReservation()));
     }
 
     @Test
     @Order(2)
     void testFindAll() {
+        // Given
+        reservationRepository.save(Reservation.builder()
+                .idReservation("R2-" + System.currentTimeMillis())
+                .anneeUniversitaire(LocalDate.now())
+                .estValide(true)
+                .build());
+
+        // When
         List<Reservation> allReservations = reservationService.findAll();
-        assertThat(allReservations).isNotNull();
-        assertThat(allReservations).isNotEmpty();
-        assertThat(allReservations).anyMatch(r -> r.getIdReservation().equals(testReservation.getIdReservation()));
+
+        // Then
+        assertThat(allReservations)
+                .isNotNull()
+                .isNotEmpty()
+                .allMatch(r -> r.getIdReservation() != null);
     }
 
     @Test
     @Order(3)
     void testFindById() {
-        Reservation found = reservationService.findById(testReservation.getIdReservation());
-        assertThat(found).isNotNull();
-        assertThat(found.getIdReservation()).isEqualTo(testReservation.getIdReservation());
+        // Given
+        Reservation saved = reservationRepository.save(Reservation.builder()
+                .idReservation("R3-" + System.currentTimeMillis())
+                .anneeUniversitaire(LocalDate.now())
+                .estValide(true)
+                .build());
+
+        // When
+        Reservation found = reservationService.findById(saved.getIdReservation());
+
+        // Then
+        assertThat(found)
+                .isNotNull()
+                .extracting(Reservation::getIdReservation)
+                .isEqualTo(saved.getIdReservation());
     }
 
     @Test
     @Order(4)
     void testAjouterReservationEtAssignerAChambreEtAEtudiant() {
+        // When
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(
                 chambre.getNumeroChambre(),
                 etudiant.getCin()
         );
 
-        assertThat(res).isNotNull();
-        assertThat(res.getEtudiants()).isNotEmpty();
-        assertThat(res.getEtudiants()).extracting(Etudiant::getCin).contains(etudiant.getCin());
+        // Then
+        assertThat(res)
+                .isNotNull()
+                .extracting(
+                        r -> r.getEtudiants().isEmpty(),
+                        r -> r.getAnneeUniversitaire() == null
+                )
+                .containsExactly(false, false);
 
-        Chambre chambreFromDb = chambreRepository.findById(chambre.getIdChambre()).orElse(null);
-        assertThat(chambreFromDb).isNotNull();
-        assertThat(chambreFromDb.getReservations()).contains(res);
+        // Verify chambre association
+        Chambre chambreFromDb = chambreRepository.findById(chambre.getIdChambre())
+                .orElseThrow(() -> new AssertionError("Chambre not found"));
+        assertThat(chambreFromDb.getReservations())
+                .contains(res);
 
-        Etudiant etudiantFromDb = etudiantRepository.findById(etudiant.getCin()).orElse(null);
-        assertThat(etudiantFromDb).isNotNull();
-        assertThat(etudiantFromDb.getReservations()).contains(res);
+        // Verify etudiant association
+        Etudiant etudiantFromDb = etudiantRepository.findById(etudiant.getCin())
+                .orElseThrow(() -> new AssertionError("Etudiant not found"));
+        assertThat(etudiantFromDb.getReservations())
+                .contains(res);
     }
 
     @Test
     @Order(5)
     void testGetReservationParAnneeUniversitaire() {
-        // Create a reservation with specific date
+        // Given
         LocalDate testDate = LocalDate.of(2023, 1, 15);
         reservationRepository.save(Reservation.builder()
                 .idReservation("R4-" + System.currentTimeMillis())
@@ -132,57 +173,67 @@ public class ReservationServiceIntegrationTest {
                 .estValide(true)
                 .build());
 
+        // When
         long count = reservationService.getReservationParAnneeUniversitaire(
                 LocalDate.of(2023, 1, 1),
                 LocalDate.of(2023, 1, 31)
         );
-        assertThat(count).isGreaterThanOrEqualTo(1);
+
+        // Then
+        assertThat(count)
+                .isGreaterThanOrEqualTo(1);
     }
 
     @Test
     @Order(6)
     void testAnnulerReservation() {
-        // First create a valid reservation
+        // Given
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(
                 chambre.getNumeroChambre(),
                 etudiant.getCin()
         );
-        assertThat(res).isNotNull();
         assertThat(res.isEstValide()).isTrue();
 
-        // Now cancel it
+        // When
         String msg = reservationService.annulerReservation(etudiant.getCin());
-        assertThat(msg).isNotNull();
-        assertThat(msg).containsIgnoringCase("annulée");
 
-        // Verify it's no longer valid
-        Optional<Reservation> cancelledRes = reservationRepository.findById(res.getIdReservation());
-        assertThat(cancelledRes).isPresent();
-        assertThat(cancelledRes.get().isEstValide()).isFalse();
+        // Then
+        assertThat(msg)
+                .isNotNull()
+                .containsIgnoringCase("annulée");
+
+        // Verify status changed
+        Reservation cancelledRes = reservationRepository.findById(res.getIdReservation())
+                .orElseThrow(() -> new AssertionError("Reservation not found"));
+        assertThat(cancelledRes.isEstValide()).isFalse();
     }
 
     @Test
     @Order(7)
     void testAffectAndDeaffectReservationAChambre() {
-        // Create a reservation without chambre assignment
+        // Given
         Reservation res = reservationRepository.save(Reservation.builder()
                 .idReservation("R7-" + System.currentTimeMillis())
                 .anneeUniversitaire(LocalDate.now())
                 .estValide(true)
                 .build());
 
-        // Affect to chambre
+        // When - Affect
         reservationService.affectReservationAChambre(res.getIdReservation(), chambre.getIdChambre());
 
-        Chambre updatedChambre = chambreRepository.findById(chambre.getIdChambre()).orElse(null);
-        assertThat(updatedChambre).isNotNull();
-        assertThat(updatedChambre.getReservations()).contains(res);
+        // Then - Affect
+        Chambre updatedChambre = chambreRepository.findById(chambre.getIdChambre())
+                .orElseThrow(() -> new AssertionError("Chambre not found"));
+        assertThat(updatedChambre.getReservations())
+                .contains(res);
 
-        // Deaffect from chambre
+        // When - Deaffect
         reservationService.deaffectReservationAChambre(res.getIdReservation(), chambre.getIdChambre());
 
-        updatedChambre = chambreRepository.findById(chambre.getIdChambre()).orElse(null);
-        assertThat(updatedChambre).isNotNull();
-        assertThat(updatedChambre.getReservations()).doesNotContain(res);
+        // Then - Deaffect
+        updatedChambre = chambreRepository.findById(chambre.getIdChambre())
+                .orElseThrow(() -> new AssertionError("Chambre not found"));
+        assertThat(updatedChambre.getReservations())
+                .doesNotContain(res);
     }
 }

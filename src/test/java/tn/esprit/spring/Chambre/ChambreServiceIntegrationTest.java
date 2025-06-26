@@ -1,7 +1,6 @@
 package tn.esprit.spring.Chambre;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +14,11 @@ import tn.esprit.spring.Services.Chambre.ChambreService;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
 public class ChambreServiceIntegrationTest {
 
     @Autowired
@@ -31,15 +30,24 @@ public class ChambreServiceIntegrationTest {
     @Autowired
     private BlocRepository blocRepository;
 
+    @BeforeEach
+    void setUp() {
+        // Clear data before each test
+        chambreRepository.deleteAll();
+        blocRepository.deleteAll();
+    }
+
     @Test
-    public void testAddOrUpdateChambre() {
-        Bloc bloc = Bloc.builder()
-                .nomBloc("Bloc Test")
-                .capaciteBloc(100L)
-                .build();
-        bloc = blocRepository.save(bloc); // save bloc first!
-        assertThat(bloc).isNotNull();
-        assertThat(bloc.getIdBloc()).isNotNull();
+    @Order(1)
+    void testAddOrUpdateChambre() {
+        // Given
+        Bloc bloc = blocRepository.save(
+                Bloc.builder()
+                        .nomBloc("Bloc Test")
+                        .capaciteBloc(100)
+                        .build()
+        );
+        assertNotNull(bloc.getIdBloc(), "Bloc should be saved");
 
         Chambre chambre = Chambre.builder()
                 .numeroChambre(1L)
@@ -47,91 +55,134 @@ public class ChambreServiceIntegrationTest {
                 .bloc(bloc)
                 .build();
 
-        Chambre savedChambre = chambreService.addOrUpdate(chambre);
-        assertThat(savedChambre).isNotNull();
-        assertThat(savedChambre.getIdChambre()).isNotNull();
-        assertThat(savedChambre.getNumeroChambre()).isEqualTo(1L);
+        // When
+        Chambre saved = chambreService.addOrUpdate(chambre);
+
+        // Then
+        assertNotNull(saved, "Chambre should be saved");
+        assertNotNull(saved.getIdChambre(), "Chambre ID should be generated");
+        assertEquals(1L, saved.getNumeroChambre());
+        assertEquals(bloc.getIdBloc(), saved.getBloc().getIdBloc());
     }
 
     @Test
-    public void testFindAllChambres() {
+    @Order(2)
+    void testFindAllChambres() {
+        // Given
         Bloc bloc = blocRepository.save(
-                Bloc.builder().nomBloc("Bloc B").capaciteBloc(50L).build()
+                Bloc.builder()
+                        .nomBloc("Bloc B")
+                        .capaciteBloc(50)
+                        .build()
         );
-        assertThat(bloc).isNotNull();
-        assertThat(bloc.getIdBloc()).isNotNull();
 
-        Chambre ch1 = chambreService.addOrUpdate(
-                Chambre.builder().numeroChambre(101L).typeC(TypeChambre.SIMPLE).bloc(bloc).build()
+        chambreRepository.save(
+                Chambre.builder()
+                        .numeroChambre(101L)
+                        .typeC(TypeChambre.SIMPLE)
+                        .bloc(bloc)
+                        .build()
         );
-        Chambre ch2 = chambreService.addOrUpdate(
-                Chambre.builder().numeroChambre(102L).typeC(TypeChambre.DOUBLE).bloc(bloc).build()
-        );
-        assertThat(ch1).isNotNull();
-        assertThat(ch2).isNotNull();
 
+        chambreRepository.save(
+                Chambre.builder()
+                        .numeroChambre(102L)
+                        .typeC(TypeChambre.DOUBLE)
+                        .bloc(bloc)
+                        .build()
+        );
+
+        // When
         List<Chambre> chambres = chambreService.findAll();
-        assertThat(chambres).isNotNull();
-        assertThat(chambres.size()).isGreaterThanOrEqualTo(2);
-        assertThat(chambres).extracting(Chambre::getNumeroChambre).contains(101L, 102L);
+
+        // Then
+        assertNotNull(chambres, "List of chambres should not be null");
+        assertTrue(chambres.size() >= 2, "Should find at least 2 chambres");
+        assertThat(chambres)
+                .extracting(Chambre::getNumeroChambre)
+                .contains(101L, 102L);
     }
 
     @Test
-    public void testFindById() {
+    @Order(3)
+    void testFindById() {
+        // Given
         Bloc bloc = blocRepository.save(
-                Bloc.builder().nomBloc("Bloc C").capaciteBloc(75L).build()
+                Bloc.builder()
+                        .nomBloc("Bloc C")
+                        .capaciteBloc(75)
+                        .build()
         );
-        assertThat(bloc).isNotNull();
-        assertThat(bloc.getIdBloc()).isNotNull();
 
-        Chambre chambre = chambreService.addOrUpdate(
-                Chambre.builder().numeroChambre(303L).typeC(TypeChambre.TRIPLE).bloc(bloc).build()
+        Chambre chambre = chambreRepository.save(
+                Chambre.builder()
+                        .numeroChambre(303L)
+                        .typeC(TypeChambre.TRIPLE)
+                        .bloc(bloc)
+                        .build()
         );
-        assertThat(chambre).isNotNull();
-        assertThat(chambre.getIdChambre()).isNotNull();
 
+        // When
         Chambre found = chambreService.findById(chambre.getIdChambre());
-        assertThat(found).isNotNull();
-        assertThat(found.getNumeroChambre()).isEqualTo(303L);
+
+        // Then
+        assertNotNull(found, "Chambre should be found");
+        assertEquals(303L, found.getNumeroChambre());
+        assertEquals(TypeChambre.TRIPLE, found.getTypeC());
     }
 
     @Test
-    public void testDeleteById() {
+    @Order(4)
+    void testDeleteById() {
+        // Given
         Bloc bloc = blocRepository.save(
-                Bloc.builder().nomBloc("Bloc D").capaciteBloc(60L).build()
+                Bloc.builder()
+                        .nomBloc("Bloc D")
+                        .capaciteBloc(60)
+                        .build()
         );
-        assertThat(bloc).isNotNull();
-        assertThat(bloc.getIdBloc()).isNotNull();
 
-        Chambre chambre = chambreService.addOrUpdate(
-                Chambre.builder().numeroChambre(404L).typeC(TypeChambre.SIMPLE).bloc(bloc).build()
+        Chambre chambre = chambreRepository.save(
+                Chambre.builder()
+                        .numeroChambre(404L)
+                        .typeC(TypeChambre.SIMPLE)
+                        .bloc(bloc)
+                        .build()
         );
-        assertThat(chambre).isNotNull();
-        assertThat(chambre.getIdChambre()).isNotNull();
 
+        // When
         chambreService.deleteById(chambre.getIdChambre());
 
-        boolean exists = chambreRepository.findById(chambre.getIdChambre()).isPresent();
-        assertThat(exists).isFalse();
+        // Then
+        assertFalse(chambreRepository.existsById(chambre.getIdChambre()),
+                "Chambre should be deleted");
     }
 
     @Test
-    public void testGetChambresParNomBloc() {
+    @Order(5)
+    void testGetChambresParNomBloc() {
+        // Given
         Bloc bloc = blocRepository.save(
-                Bloc.builder().nomBloc("Bloc Special").capaciteBloc(80L).build()
+                Bloc.builder()
+                        .nomBloc("Bloc Special")
+                        .capaciteBloc(80)
+                        .build()
         );
-        assertThat(bloc).isNotNull();
-        assertThat(bloc.getIdBloc()).isNotNull();
 
-        Chambre ch = chambreService.addOrUpdate(
-                Chambre.builder().numeroChambre(505L).typeC(TypeChambre.DOUBLE).bloc(bloc).build()
+        chambreRepository.save(
+                Chambre.builder()
+                        .numeroChambre(505L)
+                        .typeC(TypeChambre.DOUBLE)
+                        .bloc(bloc)
+                        .build()
         );
-        assertThat(ch).isNotNull();
-        assertThat(ch.getIdChambre()).isNotNull();
 
+        // When
         List<Chambre> chambres = chambreService.getChambresParNomBloc("Bloc Special");
-        assertThat(chambres).isNotNull();
-        assertThat(chambres).isNotEmpty();
-        assertThat(chambres.get(0).getBloc().getNomBloc()).isEqualTo("Bloc Special");
+
+        // Then
+        assertNotNull(chambres, "List of chambres should not be null");
+        assertFalse(chambres.isEmpty(), "Should find at least one chambre");
+        assertEquals("Bloc Special", chambres.get(0).getBloc().getNomBloc());
     }
 }

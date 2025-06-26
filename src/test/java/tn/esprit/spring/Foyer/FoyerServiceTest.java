@@ -1,6 +1,5 @@
 package tn.esprit.spring.Foyer;
 
-
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +15,10 @@ import tn.esprit.spring.Services.Foyer.FoyerService;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-@ExtendWith(MockitoExtension.class)
 
+@ExtendWith(MockitoExtension.class)
 public class FoyerServiceTest {
 
     @InjectMocks
@@ -180,51 +178,40 @@ public class FoyerServiceTest {
 
     @Test
     void testAffecterFoyerAUniversite_ByIds_FoyerNotFound() {
+        // Given
         when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
+        when(universiteRepository.findById(2L)).thenReturn(Optional.of(new Universite()));
 
+        // When/Then
         assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Foyer not found");
+                .hasMessageContaining("Foyer not found with id: 1");
     }
 
     @Test
     void testAffecterFoyerAUniversite_ByIds_UniversiteNotFound() {
-        Foyer foyer = new Foyer();
-        when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
+        // Given
+        when(foyerRepository.findById(1L)).thenReturn(Optional.of(new Foyer()));
         when(universiteRepository.findById(2L)).thenReturn(Optional.empty());
 
+        // When/Then
         assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Universite not found");
+                .hasMessageContaining("Universite not found with id: 2");
     }
-//    @Test
-//    void testAffecterFoyerAUniversite_ByIds() {
-//        Universite universite = new Universite();
-//        Foyer foyer = new Foyer();
-//
-//        when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
-//        when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
-//        when(universiteRepository.save(universite)).thenReturn(universite);
-//
-//        Universite result = foyerService.affecterFoyerAUniversite(1L, 2L);
-//
-//        assertThat(result).isEqualTo(universite);
-//        assertThat(universite.getFoyer()).isEqualTo(foyer);
-//
-//        verify(universiteRepository).findById(2L);
-//        verify(foyerRepository).findById(1L);
-//        verify(universiteRepository).save(universite);
-//    }
-
 
     @Test
     void testDesaffecterFoyerAUniversite() {
+        // Given
         Universite universite = new Universite();
+        universite.setFoyer(new Foyer());
         when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
         when(universiteRepository.save(universite)).thenReturn(universite);
 
+        // When
         Universite result = foyerService.desaffecterFoyerAUniversite(2L);
 
+        // Then
         assertThat(result).isEqualTo(universite);
         assertThat(universite.getFoyer()).isNull();
         verify(universiteRepository).findById(2L);

@@ -6,13 +6,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.spring.DAO.Entities.Foyer;
 import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.DAO.Repositories.FoyerRepository;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 import tn.esprit.spring.Services.Universite.UniversiteService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -25,99 +26,89 @@ class UniversiteServiceIntegrationTest {
     @Autowired
     private UniversiteRepository universiteRepository;
 
-    private Universite universiteTemplate;
-
-    @BeforeAll
-    void init() {
-        assertThat(universiteService).isNotNull();
-        assertThat(universiteRepository).isNotNull();
-
-        // Clear any existing data
-        universiteRepository.deleteAll();
-
-        universiteTemplate = Universite.builder()
-                .nomUniversite("Université de Sousse")
-                .adresse("Avenue Habib Bourguiba")
-                .build();
-    }
+    @Autowired
+    private FoyerRepository foyerRepository;
 
     @BeforeEach
     void setUp() {
-        // Ensure clean state before each test
+        // Clear data before each test
+        foyerRepository.deleteAll();
         universiteRepository.deleteAll();
-    }
-
-    private Universite createTestUniversite() {
-        return Universite.builder()
-                .nomUniversite(universiteTemplate.getNomUniversite())
-                .adresse(universiteTemplate.getAdresse())
-                .build();
     }
 
     @Test
     @Order(1)
     void testAddOrUpdateAndFindById() {
         // Given
-        Universite universite = createTestUniversite();
+        Universite universite = Universite.builder()
+                .nomUniversite("Test University")
+                .adresse("Test Address")
+                .build();
 
         // When
         Universite saved = universiteService.addOrUpdate(universite);
 
         // Then
-        assertThat(saved).isNotNull();
-        assertThat(saved.getIdUniversite()).isNotNull();
+        assertNotNull(saved, "Saved university should not be null");
+        assertNotNull(saved.getIdUniversite(), "University ID should be generated");
 
+        // Verify find
         Universite found = universiteService.findById(saved.getIdUniversite());
-        assertThat(found)
-                .isNotNull()
-                .extracting(Universite::getNomUniversite)
-                .isEqualTo(universite.getNomUniversite());
+        assertNotNull(found, "Should be able to find saved university");
+        assertEquals("Test University", found.getNomUniversite());
     }
 
     @Test
     @Order(2)
     void testFindAll() {
         // Given
-        universiteService.addOrUpdate(createTestUniversite());
-        universiteService.addOrUpdate(Universite.builder()
-                .nomUniversite("Second University")
-                .adresse("Second Address")
+        universiteRepository.save(Universite.builder()
+                .nomUniversite("University 1")
+                .adresse("Address 1")
+                .build());
+
+        universiteRepository.save(Universite.builder()
+                .nomUniversite("University 2")
+                .adresse("Address 2")
                 .build());
 
         // When
         List<Universite> list = universiteService.findAll();
 
         // Then
-        assertThat(list)
-                .isNotNull()
-                .isNotEmpty()
-                .hasSizeGreaterThanOrEqualTo(2);
+        assertNotNull(list, "List of universities should not be null");
+        assertTrue(list.size() >= 2, "Should find at least 2 universities");
     }
 
     @Test
     @Order(3)
     void testDeleteAndDeleteById() {
         // Given
-        Universite saved = universiteService.addOrUpdate(createTestUniversite());
+        Universite saved = universiteRepository.save(Universite.builder()
+                .nomUniversite("To Delete")
+                .adresse("Delete Address")
+                .build());
+
         Long id = saved.getIdUniversite();
 
         // When - delete by ID
         universiteService.deleteById(id);
 
         // Then
-        assertThat(universiteRepository.findById(id)).isEmpty();
+        assertFalse(universiteRepository.existsById(id), "University should be deleted");
 
         // Given - new entity
-        Universite saved2 = universiteService.addOrUpdate(Universite.builder()
-                .nomUniversite("To be deleted")
-                .adresse("Delete me")
+        Universite saved2 = universiteRepository.save(Universite.builder()
+                .nomUniversite("To Delete 2")
+                .adresse("Delete Address 2")
                 .build());
 
         // When - delete by entity
         universiteService.delete(saved2);
 
         // Then
-        assertThat(universiteRepository.findById(saved2.getIdUniversite())).isEmpty();
+        assertFalse(universiteRepository.existsById(saved2.getIdUniversite()),
+                "University should be deleted");
     }
 
     @Test
@@ -125,7 +116,7 @@ class UniversiteServiceIntegrationTest {
     void testAjouterUniversiteEtSonFoyer() {
         // Given
         Universite u = Universite.builder()
-                .nomUniversite("Université with Foyer")
+                .nomUniversite("University with Foyer")
                 .adresse("Foyer Address")
                 .foyer(Foyer.builder()
                         .nomFoyer("Foyer Name")
@@ -137,25 +128,13 @@ class UniversiteServiceIntegrationTest {
         Universite saved = universiteService.ajouterUniversiteEtSonFoyer(u);
 
         // Then
-        assertThat(saved)
-                .isNotNull()
-                .extracting(
-                        Universite::getIdUniversite,
-                        Universite::getNomUniversite,
-                        u2 -> u2.getFoyer() != null
-                )
-                .containsExactly(
-                        saved.getIdUniversite(),
-                        "Université with Foyer",
-                        true
-                );
+        assertNotNull(saved, "University should be saved");
+        assertNotNull(saved.getIdUniversite(), "University ID should be generated");
+        assertNotNull(saved.getFoyer(), "Foyer should be set");
+        assertNotNull(saved.getFoyer().getIdFoyer(), "Foyer ID should be generated");
 
-        // Verify the foyer was properly saved and linked
-        Optional<Universite> found = universiteRepository.findById(saved.getIdUniversite());
-        assertThat(found)
-                .isPresent()
-                .get()
-                .extracting(Universite::getFoyer)
-                .isNotNull();
+        // Verify both entities were saved
+        assertTrue(universiteRepository.existsById(saved.getIdUniversite()));
+        assertTrue(foyerRepository.existsById(saved.getFoyer().getIdFoyer()));
     }
 }

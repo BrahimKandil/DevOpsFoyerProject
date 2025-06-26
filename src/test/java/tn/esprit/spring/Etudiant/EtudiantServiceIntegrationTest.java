@@ -1,7 +1,6 @@
 package tn.esprit.spring.Etudiant;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +11,11 @@ import tn.esprit.spring.DAO.Repositories.ReservationRepository;
 import tn.esprit.spring.Services.Etudiant.EtudiantService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -30,134 +31,177 @@ public class EtudiantServiceIntegrationTest {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @BeforeEach
+    void setUp() {
+        // Clear data before each test
+        reservationRepository.deleteAll();
+        etudiantRepository.deleteAll();
+    }
+
     @Test
-    public void testAddOrUpdateAndFindById() {
+    @Order(1)
+    void testAddOrUpdateAndFindById() {
+        // Given
         Etudiant etudiant = Etudiant.builder()
                 .nomEt("Integration")
                 .prenomEt("Test")
                 .cin(123456789L)
                 .ecole("Test University")
                 .dateNaissance(LocalDate.of(2000, 1, 1))
+                .reservations(new ArrayList<>())
                 .build();
 
-        // Make sure the service method properly saves and returns the student
+        // When
         Etudiant saved = etudiantService.addOrUpdate(etudiant);
-        assertThat(saved).isNotNull();
-        assertThat(saved.getIdEtudiant()).isNotNull();
 
+        // Then
+        assertThat(saved)
+                .isNotNull()
+                .extracting(
+                        Etudiant::getIdEtudiant,
+                        Etudiant::getNomEt
+                )
+                .doesNotContainNull()
+                .containsExactly(saved.getIdEtudiant(), "Integration");
+
+        // Verify find
         Etudiant found = etudiantService.findById(saved.getIdEtudiant());
-        assertThat(found).isNotNull();
-        assertThat(found.getNomEt()).isEqualTo("Integration");
+        assertThat(found)
+                .isNotNull()
+                .extracting(Etudiant::getNomEt)
+                .isEqualTo("Integration");
     }
 
     @Test
-    public void testFindAll() {
-        Etudiant e1 = Etudiant.builder()
+    @Order(2)
+    void testFindAll() {
+        // Given
+        etudiantService.addOrUpdate(Etudiant.builder()
                 .nomEt("Alice")
                 .prenomEt("Smith")
                 .cin(11111111L)
                 .ecole("Uni1")
                 .dateNaissance(LocalDate.of(1995, 5, 10))
-                .build();
-        Etudiant e2 = Etudiant.builder()
+                .build());
+
+        etudiantService.addOrUpdate(Etudiant.builder()
                 .nomEt("Bob")
                 .prenomEt("Jones")
                 .cin(22222222L)
                 .ecole("Uni2")
                 .dateNaissance(LocalDate.of(1996, 6, 15))
-                .build();
+                .build());
 
-        etudiantService.addOrUpdate(e1);
-        etudiantService.addOrUpdate(e2);
-
+        // When
         List<Etudiant> all = etudiantService.findAll();
-        assertThat(all).isNotNull();
-        assertThat(all.size()).isGreaterThanOrEqualTo(2);
+
+        // Then
+        assertThat(all)
+                .isNotNull()
+                .hasSizeGreaterThanOrEqualTo(2)
+                .extracting(Etudiant::getNomEt)
+                .contains("Alice", "Bob");
     }
 
     @Test
-    public void testDeleteAndDeleteById() {
-        Etudiant etudiant = Etudiant.builder()
+    @Order(3)
+    void testDeleteAndDeleteById() {
+        // Given
+        Etudiant saved = etudiantService.addOrUpdate(Etudiant.builder()
                 .nomEt("ToDelete")
                 .prenomEt("User")
                 .cin(33333333L)
                 .ecole("Delete School")
                 .dateNaissance(LocalDate.of(1990, 7, 20))
-                .build();
+                .build());
 
-        Etudiant saved = etudiantService.addOrUpdate(etudiant);
-        assertThat(saved).isNotNull();
-        assertThat(saved.getIdEtudiant()).isNotNull();
+        Long id = saved.getIdEtudiant();
 
-        etudiantService.deleteById(saved.getIdEtudiant());
-        assertThat(etudiantRepository.findById(saved.getIdEtudiant())).isEmpty();
+        // When - delete by ID
+        etudiantService.deleteById(id);
 
-        Etudiant et2 = Etudiant.builder()
+        // Then
+        assertThat(etudiantRepository.findById(id)).isEmpty();
+
+        // Given - new entity
+        Etudiant saved2 = etudiantService.addOrUpdate(Etudiant.builder()
                 .nomEt("ToDelete2")
                 .prenomEt("User2")
                 .cin(44444444L)
                 .ecole("Delete School 2")
                 .dateNaissance(LocalDate.of(1991, 8, 21))
-                .build();
+                .build());
 
-        Etudiant saved2 = etudiantService.addOrUpdate(et2);
-        assertThat(saved2).isNotNull();
-        assertThat(saved2.getIdEtudiant()).isNotNull();
-
+        // When - delete by entity
         etudiantService.delete(saved2);
+
+        // Then
         assertThat(etudiantRepository.findById(saved2.getIdEtudiant())).isEmpty();
     }
 
     @Test
-    public void testSelectJPQL() {
-        Etudiant etudiant = Etudiant.builder()
+    @Order(4)
+    void testSelectJPQL() {
+        // Given
+        etudiantService.addOrUpdate(Etudiant.builder()
                 .nomEt("JPQLName")
                 .prenomEt("User")
                 .cin(55555555L)
                 .ecole("JPQL School")
                 .dateNaissance(LocalDate.of(1992, 9, 22))
-                .build();
+                .build());
 
-        etudiantService.addOrUpdate(etudiant);
-
+        // When
         List<Etudiant> list = etudiantService.selectJPQL("JPQLName");
-        assertThat(list).isNotNull();
-        assertThat(list).isNotEmpty();
-        assertThat(list.get(0).getNomEt()).isEqualTo("JPQLName");
+
+        // Then
+        assertThat(list)
+                .isNotNull()
+                .isNotEmpty()
+                .extracting(Etudiant::getNomEt)
+                .containsExactly("JPQLName");
     }
 
     @Test
-    public void testAffecterAndDesaffecterReservation() {
-        Reservation res = new Reservation();
-        res.setAnneeUniversitaire(LocalDate.now());
-        res.setEstValide(true);
+    @Order(5)
+    void testAffecterAndDesaffecterReservation() {
+        // Given
+        Reservation res = Reservation.builder()
+                .idReservation("RES-" + System.currentTimeMillis())
+                .anneeUniversitaire(LocalDate.now())
+                .estValide(true)
+                .build();
         res = reservationRepository.save(res);
         assertThat(res).isNotNull();
-        assertThat(res.getIdReservation()).isNotNull();
 
-        Etudiant etudiant = Etudiant.builder()
+        Etudiant etudiant = etudiantService.addOrUpdate(Etudiant.builder()
                 .nomEt("ResUser")
                 .prenomEt("Test")
                 .cin(66666666L)
                 .ecole("Res School")
                 .dateNaissance(LocalDate.of(1993, 10, 23))
-                .build();
-
-        etudiant = etudiantService.addOrUpdate(etudiant);
+                .reservations(new ArrayList<>())
+                .build());
         assertThat(etudiant).isNotNull();
-        assertThat(etudiant.getIdEtudiant()).isNotNull();
 
-        // Affect reservation
-        etudiantService.affecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(), etudiant.getPrenomEt());
+        // When - affect
+        etudiantService.affecterReservationAEtudiant(res.getIdReservation(),
+                etudiant.getNomEt(), etudiant.getPrenomEt());
 
+        // Then
         Etudiant updated = etudiantService.findById(etudiant.getIdEtudiant());
-        assertThat(updated.getReservations()).isNotEmpty();
-        assertThat(updated.getReservations()).extracting("idReservation").contains(res.getIdReservation());
+        assertThat(updated.getReservations())
+                .isNotEmpty()
+                .extracting(Reservation::getIdReservation)
+                .contains(res.getIdReservation());
 
-        // Desaffect
-        etudiantService.desaffecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(), etudiant.getPrenomEt());
+        // When - desaffect
+        etudiantService.desaffecterReservationAEtudiant(res.getIdReservation(),
+                etudiant.getNomEt(), etudiant.getPrenomEt());
 
+        // Then
         updated = etudiantService.findById(etudiant.getIdEtudiant());
-        assertThat(updated.getReservations()).doesNotContain(res);
+        assertThat(updated.getReservations())
+                .doesNotContain(res);
     }
 }

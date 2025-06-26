@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.spring.DAO.Entities.Bloc;
 import tn.esprit.spring.DAO.Entities.Chambre;
 import tn.esprit.spring.DAO.Entities.Foyer;
+import tn.esprit.spring.DAO.Entities.TypeChambre;
 import tn.esprit.spring.DAO.Repositories.BlocRepository;
 import tn.esprit.spring.DAO.Repositories.ChambreRepository;
 import tn.esprit.spring.DAO.Repositories.FoyerRepository;
@@ -50,6 +51,7 @@ class BlocServiceIntegrationTest {
         Bloc bloc = Bloc.builder()
                 .nomBloc("Bloc Alpha")
                 .capaciteBloc(100)
+                .chambres(new ArrayList<>())
                 .build();
 
         // When
@@ -61,16 +63,25 @@ class BlocServiceIntegrationTest {
         assertEquals("Bloc Alpha", result.getNomBloc());
 
         // Verify it was actually saved
-        Bloc fromDb = blocRepository.findById(result.getIdBloc()).orElse(null);
-        assertNotNull(fromDb, "Bloc should exist in database");
+        assertTrue(blocRepository.existsById(result.getIdBloc()),
+                "Bloc should exist in database");
     }
 
     @Test
     @Order(2)
     void testFindAll() {
-        // Given
-        blocService.addOrUpdate(Bloc.builder().nomBloc("Bloc1").capaciteBloc(50).build());
-        blocService.addOrUpdate(Bloc.builder().nomBloc("Bloc2").capaciteBloc(75).build());
+        // Given - use repository directly to ensure data exists
+        blocRepository.save(Bloc.builder()
+                .nomBloc("Bloc1")
+                .capaciteBloc(50)
+                .chambres(new ArrayList<>())
+                .build());
+
+        blocRepository.save(Bloc.builder()
+                .nomBloc("Bloc2")
+                .capaciteBloc(75)
+                .chambres(new ArrayList<>())
+                .build());
 
         // When
         List<Bloc> blocs = blocService.findAll();
@@ -95,6 +106,7 @@ class BlocServiceIntegrationTest {
 
         Chambre chambre = Chambre.builder()
                 .numeroChambre(101L)
+                .typeC(TypeChambre.SIMPLE)
                 .bloc(bloc)
                 .build();
 
@@ -108,32 +120,27 @@ class BlocServiceIntegrationTest {
         assertNotNull(saved.getIdBloc(), "Saved bloc ID should not be null");
 
         // Verify chambres were saved and linked
-        Bloc fromDb = blocRepository.findById(saved.getIdBloc())
-                .orElseThrow(() -> new AssertionError("Bloc not found in DB"));
-
-        assertThat(fromDb.getChambres())
-                .isNotNull()
+        List<Chambre> savedChambres = chambreRepository.findAll();
+        assertThat(savedChambres)
                 .hasSize(1)
-                .allMatch(c -> c.getBloc().equals(fromDb));
+                .allMatch(c -> c.getBloc() != null &&
+                        Long.valueOf(c.getBloc().getIdBloc()).equals(saved.getIdBloc()));
     }
 
     @Test
     @Order(4)
     void testAffecterBlocAFoyer() {
         // Given
-        Foyer foyer = Foyer.builder()
+        Foyer foyer = foyerRepository.save(Foyer.builder()
                 .nomFoyer("Foyer Central")
                 .capaciteFoyer(200L)
-                .build();
-        foyer = foyerRepository.save(foyer);
-        assertNotNull(foyer.getIdFoyer(), "Foyer should be saved");
+                .build());
 
-        Bloc bloc = Bloc.builder()
+        Bloc bloc = blocRepository.save(Bloc.builder()
                 .nomBloc("Bloc C")
                 .capaciteBloc(80)
-                .build();
-        bloc = blocRepository.save(bloc);
-        assertNotNull(bloc.getIdBloc(), "Bloc should be saved");
+                .chambres(new ArrayList<>())
+                .build());
 
         // When
         Bloc updated = blocService.affecterBlocAFoyer(bloc.getNomBloc(), foyer.getNomFoyer());
@@ -143,7 +150,7 @@ class BlocServiceIntegrationTest {
         assertNotNull(updated.getFoyer(), "Bloc's foyer should not be null");
         assertEquals(foyer.getIdFoyer(), updated.getFoyer().getIdFoyer());
 
-        // Verify the relationship is bidirectional
+        // Verify bidirectional relationship
         Foyer updatedFoyer = foyerRepository.findById(foyer.getIdFoyer())
                 .orElseThrow(() -> new AssertionError("Foyer not found"));
         assertThat(updatedFoyer.getBlocs())

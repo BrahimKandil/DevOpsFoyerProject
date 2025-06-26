@@ -12,9 +12,11 @@ import tn.esprit.spring.DAO.Repositories.ReservationRepository;
 import tn.esprit.spring.Services.Reservation.ReservationService;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,20 +54,15 @@ class ReservationServiceTest {
 
         Etudiant etudiant = new Etudiant();
         etudiant.setCin(123456L);
-        etudiant.setReservations(new ArrayList<>()); // Initialize etudiant's reservations
-
-        // Create a properly initialized reservation
-        Reservation reservation = new Reservation();
-        reservation.setIdReservation("RES-123");
-        reservation.setAnneeUniversitaire(LocalDate.now());
-        reservation.setEstValide(true);
-        reservation.setEtudiants(new ArrayList<>()); // Initialize etudiants collection
-//        reservation.se(chambre);
+        etudiant.setReservations(new ArrayList<>());
 
         // Mock repository responses
         when(chambreRepository.findByNumeroChambre(101L)).thenReturn(chambre);
         when(etudiantRepository.findByCin(123456L)).thenReturn(etudiant);
-        when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(eq(1L), any(LocalDate.class), any(LocalDate.class))==1);
+        when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
+                eq(1L), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(1); // Only one existing reservation
+
         // Simulate saving reservation
         when(repo.save(any(Reservation.class))).thenAnswer(invocation -> {
             Reservation res = invocation.getArgument(0);
