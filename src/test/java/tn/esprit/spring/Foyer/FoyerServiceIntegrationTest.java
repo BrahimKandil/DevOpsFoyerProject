@@ -11,7 +11,6 @@ import tn.esprit.spring.DAO.Repositories.BlocRepository;
 import tn.esprit.spring.DAO.Repositories.FoyerRepository;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 import tn.esprit.spring.Services.Foyer.FoyerService;
-import tn.esprit.spring.Services.Foyer.IFoyerService;
 
 import java.util.List;
 
