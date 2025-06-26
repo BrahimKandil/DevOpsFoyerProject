@@ -52,26 +52,45 @@ class ReservationServiceTest {
 
         Etudiant etudiant = new Etudiant();
         etudiant.setCin(123456L);
+        etudiant.setReservations(new ArrayList<>()); // Initialize etudiant's reservations
+
+        // Create a properly initialized reservation
+        Reservation reservation = new Reservation();
+        reservation.setIdReservation("RES-123");
+        reservation.setAnneeUniversitaire(LocalDate.now());
+        reservation.setEstValide(true);
+        reservation.setEtudiants(new ArrayList<>()); // Initialize etudiants collection
+//        reservation.se(chambre);
 
         // Mock repository responses
         when(chambreRepository.findByNumeroChambre(101L)).thenReturn(chambre);
         when(etudiantRepository.findByCin(123456L)).thenReturn(etudiant);
-        when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
-                eq(1L), any(LocalDate.class), any(LocalDate.class)
-        )).thenReturn(1); // Only one existing reservation
-
+        when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(eq(1L), any(LocalDate.class), any(LocalDate.class))==1);
         // Simulate saving reservation
         when(repo.save(any(Reservation.class))).thenAnswer(invocation -> {
             Reservation res = invocation.getArgument(0);
+            // Ensure collections are initialized
             if (res.getEtudiants() == null) {
                 res.setEtudiants(new ArrayList<>());
             }
             res.getEtudiants().add(etudiant);
-            res.setIdReservation("RES-123");
+
+            // Also initialize the other side of the relationship
+            if (etudiant.getReservations() == null) {
+                etudiant.setReservations(new ArrayList<>());
+            }
+            etudiant.getReservations().add(res);
+
             return res;
         });
 
-        when(chambreRepository.save(any(Chambre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(chambreRepository.save(any(Chambre.class))).thenAnswer(invocation -> {
+            Chambre c = invocation.getArgument(0);
+            if (c.getReservations() == null) {
+                c.setReservations(new ArrayList<>());
+            }
+            return c;
+        });
 
         // When
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(101L, 123456L);

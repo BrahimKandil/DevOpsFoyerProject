@@ -4,11 +4,13 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.spring.DAO.Entities.Foyer;
 import tn.esprit.spring.DAO.Entities.Universite;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 import tn.esprit.spring.Services.Universite.UniversiteService;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -27,77 +29,133 @@ class UniversiteServiceIntegrationTest {
 
     @BeforeAll
     void init() {
-        assertThat(universiteService).isNotNull(); // Sanity check
+        assertThat(universiteService).isNotNull();
+        assertThat(universiteRepository).isNotNull();
+
+        // Clear any existing data
+        universiteRepository.deleteAll();
+
         universiteTemplate = Universite.builder()
                 .nomUniversite("Université de Sousse")
                 .adresse("Avenue Habib Bourguiba")
                 .build();
     }
 
-    private Universite cloneUniversite(Universite source) {
+    @BeforeEach
+    void setUp() {
+        // Ensure clean state before each test
+        universiteRepository.deleteAll();
+    }
+
+    private Universite createTestUniversite() {
         return Universite.builder()
-                .nomUniversite(source.getNomUniversite())
-                .adresse(source.getAdresse())
+                .nomUniversite(universiteTemplate.getNomUniversite())
+                .adresse(universiteTemplate.getAdresse())
                 .build();
     }
 
     @Test
+    @Order(1)
     void testAddOrUpdateAndFindById() {
-        Universite universite = cloneUniversite(universiteTemplate);
+        // Given
+        Universite universite = createTestUniversite();
+
+        // When
         Universite saved = universiteService.addOrUpdate(universite);
 
+        // Then
         assertThat(saved).isNotNull();
         assertThat(saved.getIdUniversite()).isNotNull();
 
         Universite found = universiteService.findById(saved.getIdUniversite());
-        assertThat(found).isNotNull();
-        assertThat(found.getNomUniversite()).isEqualTo(universite.getNomUniversite());
+        assertThat(found)
+                .isNotNull()
+                .extracting(Universite::getNomUniversite)
+                .isEqualTo(universite.getNomUniversite());
     }
 
     @Test
+    @Order(2)
     void testFindAll() {
-        universiteService.addOrUpdate(cloneUniversite(universiteTemplate));
+        // Given
+        universiteService.addOrUpdate(createTestUniversite());
+        universiteService.addOrUpdate(Universite.builder()
+                .nomUniversite("Second University")
+                .adresse("Second Address")
+                .build());
 
+        // When
         List<Universite> list = universiteService.findAll();
-        assertThat(list).isNotNull();
-        assertThat(list).isNotEmpty();
+
+        // Then
+        assertThat(list)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSizeGreaterThanOrEqualTo(2);
     }
 
     @Test
+    @Order(3)
     void testDeleteAndDeleteById() {
-        Universite u1 = cloneUniversite(universiteTemplate);
-        Universite saved = universiteService.addOrUpdate(u1);
-
-        assertThat(saved).isNotNull();
+        // Given
+        Universite saved = universiteService.addOrUpdate(createTestUniversite());
         Long id = saved.getIdUniversite();
+
+        // When - delete by ID
         universiteService.deleteById(id);
 
+        // Then
         assertThat(universiteRepository.findById(id)).isEmpty();
 
-        Universite u2 = Universite.builder()
-                .nomUniversite("Université de Carthage")
-                .adresse("Carthage Street")
-                .build();
+        // Given - new entity
+        Universite saved2 = universiteService.addOrUpdate(Universite.builder()
+                .nomUniversite("To be deleted")
+                .adresse("Delete me")
+                .build());
 
-        Universite saved2 = universiteService.addOrUpdate(u2);
-        assertThat(saved2).isNotNull();
+        // When - delete by entity
         universiteService.delete(saved2);
 
+        // Then
         assertThat(universiteRepository.findById(saved2.getIdUniversite())).isEmpty();
     }
 
     @Test
+    @Order(4)
     void testAjouterUniversiteEtSonFoyer() {
+        // Given
         Universite u = Universite.builder()
-                .nomUniversite("Université de Monastir")
-                .adresse("Monastir Road")
+                .nomUniversite("Université with Foyer")
+                .adresse("Foyer Address")
+                .foyer(Foyer.builder()
+                        .nomFoyer("Foyer Name")
+                        .capaciteFoyer(100L)
+                        .build())
                 .build();
 
+        // When
         Universite saved = universiteService.ajouterUniversiteEtSonFoyer(u);
 
-        assertThat(saved).isNotNull();
-        assertThat(saved.getIdUniversite()).isNotNull();
-        assertThat(saved.getNomUniversite()).isEqualTo("Université de Monastir");
-        assertThat(saved.getFoyer()).isNotNull(); // If your service sets it
+        // Then
+        assertThat(saved)
+                .isNotNull()
+                .extracting(
+                        Universite::getIdUniversite,
+                        Universite::getNomUniversite,
+                        u2 -> u2.getFoyer() != null
+                )
+                .containsExactly(
+                        saved.getIdUniversite(),
+                        "Université with Foyer",
+                        true
+                );
+
+        // Verify the foyer was properly saved and linked
+        Optional<Universite> found = universiteRepository.findById(saved.getIdUniversite());
+        assertThat(found)
+                .isPresent()
+                .get()
+                .extracting(Universite::getFoyer)
+                .isNotNull();
     }
 }

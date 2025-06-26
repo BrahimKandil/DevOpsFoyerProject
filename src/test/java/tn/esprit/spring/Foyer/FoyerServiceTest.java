@@ -1,6 +1,7 @@
 package tn.esprit.spring.Foyer;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 
@@ -150,22 +152,69 @@ public class FoyerServiceTest {
 
     @Test
     void testAffecterFoyerAUniversite_ByIds() {
+        // Given
         Universite universite = new Universite();
-        Foyer foyer = new Foyer();
+        universite.setIdUniversite(2L);
 
+        Foyer foyer = new Foyer();
+        foyer.setIdFoyer(1L);
+
+        // Mock repository responses
         when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
         when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
-        when(universiteRepository.save(universite)).thenReturn(universite);
+        when(universiteRepository.save(any(Universite.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+        // When
         Universite result = foyerService.affecterFoyerAUniversite(1L, 2L);
 
+        // Then
+        assertThat(result).isNotNull();
         assertThat(result).isEqualTo(universite);
         assertThat(universite.getFoyer()).isEqualTo(foyer);
 
+        // Verify repository interactions
         verify(universiteRepository).findById(2L);
         verify(foyerRepository).findById(1L);
         verify(universiteRepository).save(universite);
     }
+
+    @Test
+    void testAffecterFoyerAUniversite_ByIds_FoyerNotFound() {
+        when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Foyer not found");
+    }
+
+    @Test
+    void testAffecterFoyerAUniversite_ByIds_UniversiteNotFound() {
+        Foyer foyer = new Foyer();
+        when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
+        when(universiteRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Universite not found");
+    }
+//    @Test
+//    void testAffecterFoyerAUniversite_ByIds() {
+//        Universite universite = new Universite();
+//        Foyer foyer = new Foyer();
+//
+//        when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
+//        when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
+//        when(universiteRepository.save(universite)).thenReturn(universite);
+//
+//        Universite result = foyerService.affecterFoyerAUniversite(1L, 2L);
+//
+//        assertThat(result).isEqualTo(universite);
+//        assertThat(universite.getFoyer()).isEqualTo(foyer);
+//
+//        verify(universiteRepository).findById(2L);
+//        verify(foyerRepository).findById(1L);
+//        verify(universiteRepository).save(universite);
+//    }
 
 
     @Test

@@ -128,8 +128,9 @@ public class EtudiantServiceIntegrationTest {
 
     @Test
     public void testAffecterAndDesaffecterReservation() {
-        // Create and save Reservation WITHOUT manual ID (let DB generate it)
         Reservation res = new Reservation();
+        res.setAnneeUniversitaire(LocalDate.now());
+        res.setEstValide(true);
         res = reservationRepository.save(res);
         assertThat(res).isNotNull();
         assertThat(res.getIdReservation()).isNotNull();
@@ -146,14 +147,15 @@ public class EtudiantServiceIntegrationTest {
         assertThat(etudiant).isNotNull();
         assertThat(etudiant.getIdEtudiant()).isNotNull();
 
-        // Assuming your service method expects reservation ID and student ID (not names)
-        etudiantService.affecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(),etudiant.getPrenomEt());
+        // Affect reservation
+        etudiantService.affecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(), etudiant.getPrenomEt());
 
         Etudiant updated = etudiantService.findById(etudiant.getIdEtudiant());
-        assertThat(updated.getReservations()).contains(res);
+        assertThat(updated.getReservations()).isNotEmpty();
+        assertThat(updated.getReservations()).extracting("idReservation").contains(res.getIdReservation());
 
-        // Desaffect reservation
-        etudiantService.desaffecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(),etudiant.getPrenomEt());
+        // Desaffect
+        etudiantService.desaffecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(), etudiant.getPrenomEt());
 
         updated = etudiantService.findById(etudiant.getIdEtudiant());
         assertThat(updated.getReservations()).doesNotContain(res);

@@ -1,5 +1,6 @@
 package tn.esprit.spring.Foyer;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,7 @@ import tn.esprit.spring.Services.Foyer.FoyerService;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @Transactional
@@ -32,107 +34,127 @@ public class FoyerServiceIntegrationTest {
     @Autowired
     private BlocRepository blocRepository;
 
+    @BeforeEach
+    void clearData() {
+        // Ensure clean state before each test
+        blocRepository.deleteAll();
+        foyerRepository.deleteAll();
+        universiteRepository.deleteAll();
+    }
+
     @Test
     void testAddOrUpdateAndFind() {
+        // Given
         Foyer foyer = Foyer.builder()
                 .nomFoyer("Integration Foyer")
                 .capaciteFoyer(200L)
                 .build();
 
+        // When
         Foyer saved = foyerService.addOrUpdate(foyer);
-        assertThat(saved).isNotNull();
-        assertThat(saved.getIdFoyer()).isNotNull();
+
+        // Then
+        assertNotNull(saved, "Saved foyer should not be null");
+        assertNotNull(saved.getIdFoyer(), "Foyer ID should be generated");
 
         Foyer found = foyerService.findById(saved.getIdFoyer());
-        assertThat(found).isNotNull();
+        assertNotNull(found, "Should be able to find saved foyer");
         assertThat(found.getNomFoyer()).isEqualTo("Integration Foyer");
     }
 
     @Test
     void testAjouterFoyerEtAffecterAUniversite() {
-        // Create and save Universite first (mandatory for foreign key)
+        // Given
         Universite universite = Universite.builder()
                 .nomUniversite("Test Uni")
                 .build();
         universite = universiteRepository.save(universite);
-        assertThat(universite.getIdUniversite()).isNotNull();
+        assertNotNull(universite.getIdUniversite(), "Universite should be saved");
 
-        // Create blocs without IDs, no save yet
         Bloc bloc1 = Bloc.builder().nomBloc("Bloc A").capaciteBloc(50).build();
         Bloc bloc2 = Bloc.builder().nomBloc("Bloc B").capaciteBloc(60).build();
 
-        // Create foyer and assign blocs
         Foyer foyer = Foyer.builder()
                 .nomFoyer("Foyer With Blocs")
                 .capaciteFoyer(110L)
+                .blocs(List.of(bloc1, bloc2))
                 .build();
-        foyer.setBlocs(List.of(bloc1, bloc2));
 
-        // Call your service method that saves foyer + blocs + links foyer to universite
+        // When
         Foyer savedFoyer = foyerService.ajouterFoyerEtAffecterAUniversite(foyer, universite.getIdUniversite());
-        assertThat(savedFoyer).isNotNull();
-        assertThat(savedFoyer.getIdFoyer()).isNotNull();
 
-        // Reload universite and verify foyer association
-        Universite updatedUni = universiteRepository.findById(universite.getIdUniversite()).orElseThrow();
-        assertThat(updatedUni.getFoyer()).isNotNull();
-        assertThat(updatedUni.getFoyer().getNomFoyer()).isEqualTo("Foyer With Blocs");
+        // Then
+        assertNotNull(savedFoyer, "Foyer should be saved");
+        assertNotNull(savedFoyer.getIdFoyer(), "Foyer ID should be generated");
 
-        // Verify blocs saved & linked to foyer
+        // Verify universite-foyer association
+        Universite updatedUni = universiteRepository.findById(universite.getIdUniversite()).orElse(null);
+        assertNotNull(updatedUni.getFoyer(), "Universite should have associated foyer");
+        assertThat(updatedUni.getFoyer().getIdFoyer()).isEqualTo(savedFoyer.getIdFoyer());
+
+        // Verify blocs are saved and linked
         List<Bloc> blocs = blocRepository.findAll();
         assertThat(blocs).hasSize(2);
-        assertThat(blocs).allMatch(b -> b.getFoyer() != null && b.getFoyer().equals(savedFoyer));
+        assertThat(blocs).allMatch(b -> b.getFoyer() != null && b.getFoyer().getIdFoyer()==savedFoyer.getIdFoyer());
     }
 
     @Test
     void testAffecterAndDesaffecterFoyerAUniversite() {
-        // Save foyer & universite separately before linking
+        // Given
         Foyer foyer = Foyer.builder()
                 .nomFoyer("Test Foyer")
                 .capaciteFoyer(100L)
                 .build();
         foyer = foyerRepository.save(foyer);
-        assertThat(foyer.getIdFoyer()).isNotNull();
+        assertNotNull(foyer.getIdFoyer(), "Foyer should be saved");
 
         Universite universite = Universite.builder()
                 .nomUniversite("Test Uni")
                 .build();
         universite = universiteRepository.save(universite);
-        assertThat(universite.getIdUniversite()).isNotNull();
+        assertNotNull(universite.getIdUniversite(), "Universite should be saved");
 
-        // Link foyer to universite
-        Universite affected = foyerService.affecterFoyerAUniversite(foyer.getIdFoyer(), universite.getNomUniversite());
-        assertThat(affected).isNotNull();
-        assertThat(affected.getFoyer()).isNotNull();
-        assertThat(affected.getFoyer()).isEqualTo(foyer);
+        // When - Affect
+        Universite affected = foyerService.affecterFoyerAUniversite(foyer.getIdFoyer(), universite.getIdUniversite());
 
-        // Remove foyer from universite
+        // Then - Affect
+        assertNotNull(affected, "Affected universite should not be null");
+        assertNotNull(affected.getFoyer(), "Universite should have foyer");
+        assertThat(affected.getFoyer().getIdFoyer()).isEqualTo(foyer.getIdFoyer());
+
+        // When - Desaffect
         Universite desaffected = foyerService.desaffecterFoyerAUniversite(universite.getIdUniversite());
-        assertThat(desaffected).isNotNull();
+
+        // Then - Desaffect
+        assertNotNull(desaffected, "Desaffected universite should not be null");
         assertThat(desaffected.getFoyer()).isNull();
     }
 
     @Test
     void testAjoutFoyerEtBlocs() {
-        // Create blocs
+        // Given
         Bloc bloc1 = Bloc.builder().nomBloc("Bloc 1").capaciteBloc(25).build();
         Bloc bloc2 = Bloc.builder().nomBloc("Bloc 2").capaciteBloc(30).build();
 
-        // Create foyer with blocs assigned
         Foyer foyer = Foyer.builder()
                 .nomFoyer("Foyer Test")
                 .capaciteFoyer(55L)
+                .blocs(List.of(bloc1, bloc2))
                 .build();
-        foyer.setBlocs(List.of(bloc1, bloc2));
 
-        // Save foyer and blocs via your service method
+        // When
         Foyer saved = foyerService.ajoutFoyerEtBlocs(foyer);
-        assertThat(saved).isNotNull();
-        assertThat(saved.getIdFoyer()).isNotNull();
 
-        // Check blocs are saved and linked to foyer
+        // Then
+        assertNotNull(saved, "Foyer should be saved");
+        assertNotNull(saved.getIdFoyer(), "Foyer ID should be generated");
+
+        // Verify blocs
         List<Bloc> savedBlocs = blocRepository.findAll();
         assertThat(savedBlocs).hasSize(2);
-        assertThat(savedBlocs).allMatch(b -> b.getFoyer() != null && b.getFoyer().equals(saved));
+        assertThat(savedBlocs).allMatch(b ->
+                b.getFoyer() != null &&
+                        b.getFoyer().getIdFoyer()==saved.getIdFoyer()
+        );
     }
 }
