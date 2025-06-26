@@ -10,6 +10,7 @@ import tn.esprit.spring.DAO.Entities.Universite;
 import tn.esprit.spring.DAO.Repositories.BlocRepository;
 import tn.esprit.spring.DAO.Repositories.FoyerRepository;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
+import tn.esprit.spring.Services.Foyer.FoyerService;
 import tn.esprit.spring.Services.Foyer.IFoyerService;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FoyerServiceIntegrationTest {
 
     @Autowired
-    private IFoyerService foyerService;
+    private FoyerService foyerService;
 
     @Autowired
     private FoyerRepository foyerRepository;

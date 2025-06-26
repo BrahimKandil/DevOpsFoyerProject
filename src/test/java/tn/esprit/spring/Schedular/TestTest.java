@@ -19,7 +19,7 @@ class TestTest {
         listAppender.start();
         logger.addAppender(listAppender);
 
-//        testInstance.affiche(); // Call the logging method
+        testInstance.affiche(); // Call the logging method
 
         // Assert logs
         assertThat(listAppender.list)

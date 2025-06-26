@@ -1,6 +1,5 @@
 package tn.esprit.spring.Universite;
 
-
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +27,6 @@ class UniversiteServiceIntegrationTest {
 
     @BeforeAll
     void init() {
-        // Template entity; won't be saved directly
         universiteTemplate = Universite.builder()
                 .nomUniversite("Université de Sousse")
                 .adresse("Avenue Habib Bourguiba")
@@ -53,6 +51,7 @@ class UniversiteServiceIntegrationTest {
         universiteService.addOrUpdate(cloneUniversite(universiteTemplate));
 
         List<Universite> list = universiteService.findAll();
+        assertThat(list).isNotNull();
         assertThat(list).isNotEmpty();
     }
 
@@ -60,6 +59,7 @@ class UniversiteServiceIntegrationTest {
     void testDeleteAndDeleteById() {
         Universite u1 = cloneUniversite(universiteTemplate);
         Universite saved = universiteService.addOrUpdate(u1);
+        assertThat(saved).isNotNull();
 
         universiteService.deleteById(saved.getIdUniversite());
         assertThat(universiteRepository.findById(saved.getIdUniversite())).isEmpty();
@@ -69,6 +69,8 @@ class UniversiteServiceIntegrationTest {
                 .adresse("Carthage Street")
                 .build();
         Universite saved2 = universiteService.addOrUpdate(newUniversite);
+        assertThat(saved2).isNotNull();
+
         universiteService.delete(saved2);
         assertThat(universiteRepository.findById(saved2.getIdUniversite())).isEmpty();
     }

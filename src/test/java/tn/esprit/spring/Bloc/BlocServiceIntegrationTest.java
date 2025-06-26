@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 @Transactional
 class BlocServiceIntegrationTest {
@@ -37,18 +38,20 @@ class BlocServiceIntegrationTest {
 
         Bloc result = blocService.addOrUpdate(bloc);
 
-        assertNotNull(result);
-        assertNotNull(result.getIdBloc());
+        assertNotNull(result, "Bloc returned by service should not be null");
+        assertNotNull(result.getIdBloc(), "Bloc ID should not be null after save");
         assertEquals("Bloc Alpha", result.getNomBloc());
     }
 
     @Test
     void testFindAll() {
+        // Ensure repository has some blocs saved
         blocRepository.save(Bloc.builder().nomBloc("Bloc1").capaciteBloc(50).build());
         blocRepository.save(Bloc.builder().nomBloc("Bloc2").capaciteBloc(75).build());
 
         List<Bloc> blocs = blocService.findAll();
 
+        assertThat(blocs).isNotNull();
         assertThat(blocs).isNotEmpty();
         assertThat(blocs).extracting(Bloc::getNomBloc).contains("Bloc1", "Bloc2");
     }
@@ -63,29 +66,34 @@ class BlocServiceIntegrationTest {
         Chambre chambre = new Chambre();
         chambre.setNumeroChambre(101L);
         chambre.setBloc(bloc); // set back-reference
+
         bloc.setChambres(List.of(chambre));
 
         Bloc saved = blocService.addOrUpdate(bloc);
 
-        assertNotNull(saved);
-        assertNotNull(saved.getIdBloc());
+        assertNotNull(saved, "Saved bloc should not be null");
+        assertNotNull(saved.getIdBloc(), "Saved bloc ID should not be null");
+        assertThat(saved.getChambres()).isNotNull();
         assertEquals(1, saved.getChambres().size());
         assertEquals(saved, saved.getChambres().get(0).getBloc());
     }
 
     @Test
     void testAffecterBlocAFoyer() {
+        // Save foyer first, so it exists in the DB
         Foyer foyer = new Foyer();
         foyer.setNomFoyer("Foyer Central");
         foyer = foyerRepository.save(foyer);
 
+        // Save bloc first, so it exists in the DB
         Bloc bloc = Bloc.builder().nomBloc("Bloc C").capaciteBloc(80).build();
         bloc = blocRepository.save(bloc);
 
+        // Now affect bloc to foyer by names
         Bloc updated = blocService.affecterBlocAFoyer("Bloc C", "Foyer Central");
 
-        assertNotNull(updated);
-        assertNotNull(updated.getFoyer());
+        assertNotNull(updated, "Updated bloc should not be null");
+        assertNotNull(updated.getFoyer(), "Bloc's foyer should not be null");
         assertEquals("Foyer Central", updated.getFoyer().getNomFoyer());
     }
 }

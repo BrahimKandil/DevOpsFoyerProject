@@ -1,9 +1,12 @@
 package tn.esprit.spring.Reservation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
@@ -37,14 +40,12 @@ class ReservationControllerTest {
 
     @BeforeEach
     void setup() {
-        // instantiate controller with mocked service
         controller = new ReservationRestController(service);
-
-        // build MockMvc standalone setup with controller
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
-        // real ObjectMapper instance
         objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule()); // ✅ Fix for LocalDate
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // Optional ISO formatting
 
         reservation = Reservation.builder()
                 .idReservation("R123")

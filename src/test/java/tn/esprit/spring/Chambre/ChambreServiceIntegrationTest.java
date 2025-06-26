@@ -9,6 +9,7 @@ import tn.esprit.spring.DAO.Entities.Chambre;
 import tn.esprit.spring.DAO.Entities.TypeChambre;
 import tn.esprit.spring.DAO.Repositories.BlocRepository;
 import tn.esprit.spring.DAO.Repositories.ChambreRepository;
+import tn.esprit.spring.Services.Chambre.ChambreService;
 import tn.esprit.spring.Services.Chambre.IChambreService;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChambreServiceIntegrationTest {
 
     @Autowired
-    private IChambreService chambreService;
+    private ChambreService chambreService;
 
     @Autowired
     private ChambreRepository chambreRepository;

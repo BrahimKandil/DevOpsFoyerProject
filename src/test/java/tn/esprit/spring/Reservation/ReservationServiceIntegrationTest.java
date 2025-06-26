@@ -1,6 +1,5 @@
 package tn.esprit.spring.Reservation;
 
-
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,8 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)  // Allows non-static BeforeAll
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)  // Optional, can remove if not used
 public class ReservationServiceIntegrationTest {
 
     @Autowired
@@ -41,22 +39,20 @@ public class ReservationServiceIntegrationTest {
     private Chambre chambre;
     private Etudiant etudiant;
 
-    @BeforeAll
+    @BeforeEach
     void setupData() {
-        // Create and save a Chambre
-        Chambre newChambre = Chambre.builder()
-                .numeroChambre(101L)
-                .typeC(TypeChambre.SIMPLE)
-                .build();
-        chambre = chambreRepository.save(newChambre);
+        chambre = chambreRepository.save(
+                Chambre.builder()
+                        .numeroChambre(System.currentTimeMillis()) // unique number per test
+                        .typeC(TypeChambre.SIMPLE)
+                        .build());
 
-        // Create and save an Etudiant
-        Etudiant newEtudiant = Etudiant.builder()
-                .nomEt("TestNom")
-                .prenomEt("TestPrenom")
-                .cin(12345678L)
-                .build();
-        etudiant = etudiantRepository.save(newEtudiant);
+        etudiant = etudiantRepository.save(
+                Etudiant.builder()
+                        .nomEt("TestNom")
+                        .prenomEt("TestPrenom")
+                        .cin(System.currentTimeMillis()) // unique CIN per test
+                        .build());
     }
 
     @Test
@@ -69,7 +65,7 @@ public class ReservationServiceIntegrationTest {
                 .build();
 
         Reservation saved = reservationService.addOrUpdate(res);
-        assertThat(saved).isNotNull();  // Will fail if service returns null
+        assertThat(saved).isNotNull();
         assertThat(saved.getIdReservation()).isEqualTo("R1");
     }
 
@@ -78,13 +74,12 @@ public class ReservationServiceIntegrationTest {
     void testFindAll() {
         List<Reservation> allReservations = reservationService.findAll();
         assertThat(allReservations).isNotNull();
-        assertThat(allReservations.size()).isGreaterThanOrEqualTo(1);  // Because of the addOrUpdate test
+        assertThat(allReservations.size()).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     @Order(3)
     void testFindById() {
-        // Save explicitly to repository so it's guaranteed to exist
         Reservation res = Reservation.builder()
                 .idReservation("R2")
                 .anneeUniversitaire(LocalDate.now())
@@ -120,13 +115,11 @@ public class ReservationServiceIntegrationTest {
     @Test
     @Order(6)
     void testAnnulerReservation() {
-        // Prepare reservation for etudiant
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(chambre.getNumeroChambre(), etudiant.getCin());
 
         String msg = reservationService.annulerReservation(etudiant.getCin());
         assertThat(msg).contains("annulée");
 
-        // Reservation should no longer exist
         Optional<Reservation> deletedRes = reservationRepository.findById(res.getIdReservation());
         assertThat(deletedRes).isEmpty();
     }
@@ -134,15 +127,12 @@ public class ReservationServiceIntegrationTest {
     @Test
     @Order(7)
     void testAffectAndDeaffectReservationAChambre() {
-        // Prepare reservation
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(chambre.getNumeroChambre(), etudiant.getCin());
 
-        // Test affect
         reservationService.affectReservationAChambre(res.getIdReservation(), chambre.getIdChambre());
         Chambre updatedChambre = chambreRepository.findById(chambre.getIdChambre()).get();
         assertThat(updatedChambre.getReservations()).contains(res);
 
-        // Test deaffect
         reservationService.deaffectReservationAChambre(res.getIdReservation(), chambre.getIdChambre());
         updatedChambre = chambreRepository.findById(chambre.getIdChambre()).get();
         assertThat(updatedChambre.getReservations()).doesNotContain(res);

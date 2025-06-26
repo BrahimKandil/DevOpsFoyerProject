@@ -20,6 +20,8 @@ public class FoyerAspect4SE1 { // La classe : Aspect
 
     @Before("execution(* tn.esprit.spring.Services..*.*(..))")
     public void hello(JoinPoint jp){ // La méthode : Advice
+
+
         log.info("Hello from "+jp.getSignature().getName());
     }
 
