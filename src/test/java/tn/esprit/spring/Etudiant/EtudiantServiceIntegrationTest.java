@@ -9,19 +9,20 @@ import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.DAO.Entities.Reservation;
 import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 import tn.esprit.spring.DAO.Repositories.ReservationRepository;
-import tn.esprit.spring.Services.Etudiant.IEtudiantService;
+import tn.esprit.spring.Services.Etudiant.EtudiantService;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class EtudiantServiceIntegrationTest {
 
     @Autowired
-    private IEtudiantService etudiantService;
+    private EtudiantService etudiantService;
 
     @Autowired
     private EtudiantRepository etudiantRepository;
@@ -39,11 +40,13 @@ public class EtudiantServiceIntegrationTest {
                 .dateNaissance(LocalDate.of(2000, 1, 1))
                 .build();
 
+        // Make sure the service method properly saves and returns the student
         Etudiant saved = etudiantService.addOrUpdate(etudiant);
         assertThat(saved).isNotNull();
         assertThat(saved.getIdEtudiant()).isNotNull();
 
         Etudiant found = etudiantService.findById(saved.getIdEtudiant());
+        assertThat(found).isNotNull();
         assertThat(found.getNomEt()).isEqualTo("Integration");
     }
 
@@ -125,8 +128,8 @@ public class EtudiantServiceIntegrationTest {
 
     @Test
     public void testAffecterAndDesaffecterReservation() {
+        // Create and save Reservation WITHOUT manual ID (let DB generate it)
         Reservation res = new Reservation();
-        res.setIdReservation(String.valueOf(1L)); // Manually assign ID to fix your error
         res = reservationRepository.save(res);
         assertThat(res).isNotNull();
         assertThat(res.getIdReservation()).isNotNull();
@@ -143,18 +146,16 @@ public class EtudiantServiceIntegrationTest {
         assertThat(etudiant).isNotNull();
         assertThat(etudiant.getIdEtudiant()).isNotNull();
 
-        // Affect reservation
-        etudiantService.affecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(), etudiant.getPrenomEt());
+        // Assuming your service method expects reservation ID and student ID (not names)
+        etudiantService.affecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(),etudiant.getPrenomEt());
 
         Etudiant updated = etudiantService.findById(etudiant.getIdEtudiant());
         assertThat(updated.getReservations()).contains(res);
 
         // Desaffect reservation
-        etudiantService.desaffecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(), etudiant.getPrenomEt());
+        etudiantService.desaffecterReservationAEtudiant(res.getIdReservation(), etudiant.getNomEt(),etudiant.getPrenomEt());
 
         updated = etudiantService.findById(etudiant.getIdEtudiant());
         assertThat(updated.getReservations()).doesNotContain(res);
     }
 }
-
-

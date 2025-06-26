@@ -8,9 +8,9 @@ import tn.esprit.spring.DAO.Entities.Universite;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 import tn.esprit.spring.Services.Universite.UniversiteService;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -27,17 +27,25 @@ class UniversiteServiceIntegrationTest {
 
     @BeforeAll
     void init() {
+        assertThat(universiteService).isNotNull(); // Sanity check
         universiteTemplate = Universite.builder()
                 .nomUniversite("Université de Sousse")
                 .adresse("Avenue Habib Bourguiba")
                 .build();
     }
 
+    private Universite cloneUniversite(Universite source) {
+        return Universite.builder()
+                .nomUniversite(source.getNomUniversite())
+                .adresse(source.getAdresse())
+                .build();
+    }
+
     @Test
     void testAddOrUpdateAndFindById() {
         Universite universite = cloneUniversite(universiteTemplate);
-
         Universite saved = universiteService.addOrUpdate(universite);
+
         assertThat(saved).isNotNull();
         assertThat(saved.getIdUniversite()).isNotNull();
 
@@ -59,19 +67,22 @@ class UniversiteServiceIntegrationTest {
     void testDeleteAndDeleteById() {
         Universite u1 = cloneUniversite(universiteTemplate);
         Universite saved = universiteService.addOrUpdate(u1);
+
         assertThat(saved).isNotNull();
+        Long id = saved.getIdUniversite();
+        universiteService.deleteById(id);
 
-        universiteService.deleteById(saved.getIdUniversite());
-        assertThat(universiteRepository.findById(saved.getIdUniversite())).isEmpty();
+        assertThat(universiteRepository.findById(id)).isEmpty();
 
-        Universite newUniversite = Universite.builder()
+        Universite u2 = Universite.builder()
                 .nomUniversite("Université de Carthage")
                 .adresse("Carthage Street")
                 .build();
-        Universite saved2 = universiteService.addOrUpdate(newUniversite);
-        assertThat(saved2).isNotNull();
 
+        Universite saved2 = universiteService.addOrUpdate(u2);
+        assertThat(saved2).isNotNull();
         universiteService.delete(saved2);
+
         assertThat(universiteRepository.findById(saved2.getIdUniversite())).isEmpty();
     }
 
@@ -83,15 +94,10 @@ class UniversiteServiceIntegrationTest {
                 .build();
 
         Universite saved = universiteService.ajouterUniversiteEtSonFoyer(u);
+
         assertThat(saved).isNotNull();
         assertThat(saved.getIdUniversite()).isNotNull();
         assertThat(saved.getNomUniversite()).isEqualTo("Université de Monastir");
-    }
-
-    private Universite cloneUniversite(Universite source) {
-        return Universite.builder()
-                .nomUniversite(source.getNomUniversite())
-                .adresse(source.getAdresse())
-                .build();
+        assertThat(saved.getFoyer()).isNotNull(); // If your service sets it
     }
 }

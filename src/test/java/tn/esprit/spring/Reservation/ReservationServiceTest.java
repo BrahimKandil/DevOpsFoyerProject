@@ -1,15 +1,11 @@
 package tn.esprit.spring.Reservation;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tn.esprit.spring.DAO.Entities.Chambre;
-import tn.esprit.spring.DAO.Entities.Etudiant;
-import tn.esprit.spring.DAO.Entities.Reservation;
-import tn.esprit.spring.DAO.Entities.TypeChambre;
+import tn.esprit.spring.DAO.Entities.*;
 import tn.esprit.spring.DAO.Repositories.ChambreRepository;
 import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 import tn.esprit.spring.DAO.Repositories.ReservationRepository;
@@ -18,8 +14,9 @@ import tn.esprit.spring.Services.Reservation.ReservationService;
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceTest {
 
@@ -37,53 +34,58 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        // No need to openMocks here with MockitoExtension
+        // MockitoExtension handles setup
     }
-
-    // Other test methods...
 
     @Test
     void testAjouterReservationEtAssignerAChambreEtAEtudiant_ChambreHasCapacity() {
-        // Setup chambre with DOUBLE type and 1 current reservation, capacity is 2
+        // Given: a chambre with capacity for DOUBLE (2 students)
         Chambre chambre = new Chambre();
         chambre.setIdChambre(1L);
         chambre.setNumeroChambre(101L);
         chambre.setTypeC(TypeChambre.DOUBLE);
         chambre.setReservations(new ArrayList<>());
 
-        tn.esprit.spring.DAO.Entities.Bloc bloc = new tn.esprit.spring.DAO.Entities.Bloc();
+        Bloc bloc = new Bloc();
         bloc.setNomBloc("BlocA");
         chambre.setBloc(bloc);
 
         Etudiant etudiant = new Etudiant();
         etudiant.setCin(123456L);
 
+        // Mock repository responses
         when(chambreRepository.findByNumeroChambre(101L)).thenReturn(chambre);
         when(etudiantRepository.findByCin(123456L)).thenReturn(etudiant);
         when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
-                anyLong(), any(LocalDate.class), any(LocalDate.class))).thenReturn(1);
+                eq(1L), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(1); // Only one existing reservation
 
-        // This is the key fix:
+        // Simulate saving reservation
         when(repo.save(any(Reservation.class))).thenAnswer(invocation -> {
             Reservation res = invocation.getArgument(0);
             if (res.getEtudiants() == null) {
                 res.setEtudiants(new ArrayList<>());
             }
-            res.getEtudiants().add(etudiant);  // simulate adding etudiant
+            res.getEtudiants().add(etudiant);
+            res.setIdReservation("RES-123");
             return res;
         });
+
         when(chambreRepository.save(any(Chambre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+        // When
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(101L, 123456L);
 
+        // Then
         assertThat(res).isNotNull();
         assertThat(res.isEstValide()).isTrue();
         assertThat(res.getEtudiants()).contains(etudiant);
         assertThat(chambre.getReservations()).contains(res);
 
+        // Verify interactions
+        verify(chambreRepository).findByNumeroChambre(101L);
+        verify(etudiantRepository).findByCin(123456L);
         verify(repo).save(any(Reservation.class));
         verify(chambreRepository).save(chambre);
     }
-
-    // Rest of your tests...
 }

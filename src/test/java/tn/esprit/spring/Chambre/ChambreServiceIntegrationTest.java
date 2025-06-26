@@ -1,6 +1,7 @@
 package tn.esprit.spring.Chambre;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 public class ChambreServiceIntegrationTest {
 
     @Autowired
@@ -34,7 +37,7 @@ public class ChambreServiceIntegrationTest {
                 .nomBloc("Bloc Test")
                 .capaciteBloc(100L)
                 .build();
-        bloc = blocRepository.save(bloc);
+        bloc = blocRepository.save(bloc); // save bloc first!
         assertThat(bloc).isNotNull();
         assertThat(bloc.getIdBloc()).isNotNull();
 
@@ -120,9 +123,11 @@ public class ChambreServiceIntegrationTest {
         assertThat(bloc).isNotNull();
         assertThat(bloc.getIdBloc()).isNotNull();
 
-        chambreService.addOrUpdate(
+        Chambre ch = chambreService.addOrUpdate(
                 Chambre.builder().numeroChambre(505L).typeC(TypeChambre.DOUBLE).bloc(bloc).build()
         );
+        assertThat(ch).isNotNull();
+        assertThat(ch.getIdChambre()).isNotNull();
 
         List<Chambre> chambres = chambreService.getChambresParNomBloc("Bloc Special");
         assertThat(chambres).isNotNull();

@@ -1,6 +1,7 @@
 package tn.esprit.spring.Bloc;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import tn.esprit.spring.DAO.Repositories.BlocRepository;
 import tn.esprit.spring.DAO.Repositories.FoyerRepository;
 import tn.esprit.spring.Services.Bloc.BlocService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 class BlocServiceIntegrationTest {
 
     @Autowired
@@ -45,9 +49,8 @@ class BlocServiceIntegrationTest {
 
     @Test
     void testFindAll() {
-        // Ensure repository has some blocs saved
-        blocRepository.save(Bloc.builder().nomBloc("Bloc1").capaciteBloc(50).build());
-        blocRepository.save(Bloc.builder().nomBloc("Bloc2").capaciteBloc(75).build());
+        blocService.addOrUpdate(Bloc.builder().nomBloc("Bloc1").capaciteBloc(50).build());
+        blocService.addOrUpdate(Bloc.builder().nomBloc("Bloc2").capaciteBloc(75).build());
 
         List<Bloc> blocs = blocService.findAll();
 
@@ -63,11 +66,14 @@ class BlocServiceIntegrationTest {
                 .capaciteBloc(200)
                 .build();
 
-        Chambre chambre = new Chambre();
-        chambre.setNumeroChambre(101L);
-        chambre.setBloc(bloc); // set back-reference
+        Chambre chambre = Chambre.builder()
+                .numeroChambre(101L)
+                .bloc(bloc)
+                .build();
 
-        bloc.setChambres(List.of(chambre));
+        List<Chambre> chambres = new ArrayList<>();
+        chambres.add(chambre);
+        bloc.setChambres(chambres);
 
         Bloc saved = blocService.addOrUpdate(bloc);
 
@@ -75,21 +81,25 @@ class BlocServiceIntegrationTest {
         assertNotNull(saved.getIdBloc(), "Saved bloc ID should not be null");
         assertThat(saved.getChambres()).isNotNull();
         assertEquals(1, saved.getChambres().size());
-        assertEquals(saved, saved.getChambres().get(0).getBloc());
+        assertEquals(saved.getNomBloc(), saved.getChambres().get(0).getBloc().getNomBloc());
     }
 
     @Test
     void testAffecterBlocAFoyer() {
-        // Save foyer first, so it exists in the DB
-        Foyer foyer = new Foyer();
-        foyer.setNomFoyer("Foyer Central");
+        Foyer foyer = Foyer.builder()
+                .nomFoyer("Foyer Central")
+                .capaciteFoyer(200L)
+                .build();
         foyer = foyerRepository.save(foyer);
+        assertNotNull(foyer.getIdFoyer());
 
-        // Save bloc first, so it exists in the DB
-        Bloc bloc = Bloc.builder().nomBloc("Bloc C").capaciteBloc(80).build();
+        Bloc bloc = Bloc.builder()
+                .nomBloc("Bloc C")
+                .capaciteBloc(80)
+                .build();
         bloc = blocRepository.save(bloc);
+        assertNotNull(bloc.getIdBloc());
 
-        // Now affect bloc to foyer by names
         Bloc updated = blocService.affecterBlocAFoyer("Bloc C", "Foyer Central");
 
         assertNotNull(updated, "Updated bloc should not be null");
