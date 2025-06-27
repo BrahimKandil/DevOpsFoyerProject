@@ -12,7 +12,10 @@ import java.util.List;
 @Controller
 @RequestMapping("reservation")
 public class ReservationRestController {
-    ReservationService service;
+    private final ReservationService service;
+    public ReservationRestController(ReservationService service) {
+        this.service = service;
+    }
 
     @PostMapping("addOrUpdate")
     Reservation addOrUpdate(@RequestBody Reservation r) {

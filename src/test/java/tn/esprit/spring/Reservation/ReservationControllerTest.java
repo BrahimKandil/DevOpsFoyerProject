@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tn.esprit.spring.DAO.Entities.Reservation;
 import tn.esprit.spring.RestControllers.ReservationRestController;
 import tn.esprit.spring.Services.Reservation.IReservationService;
+import tn.esprit.spring.Services.Reservation.ReservationService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +30,7 @@ class ReservationControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private IReservationService service;
+    private ReservationService service;
 
     private ObjectMapper objectMapper;
 
