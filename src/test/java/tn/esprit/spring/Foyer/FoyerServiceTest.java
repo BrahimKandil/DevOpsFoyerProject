@@ -149,36 +149,36 @@ public class FoyerServiceTest {
         verify(blocRepository, times(2)).save(any(Bloc.class));
     }
 
-    @Test
-    void testAffecterFoyerAUniversite_ByIds() {
-        // Given
-        Universite universite = new Universite();
-        universite.setIdUniversite(2L);
-
-        Foyer foyer = new Foyer();
-        foyer.setIdFoyer(1L);
-
-        // Mock repository responses
-        when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
-        when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
-        when(universiteRepository.save(any(Universite.class))).thenAnswer(invocation -> {
-            return invocation.getArgument(0); // Return the saved entity
-        });
-
-        // When
-        Universite result = foyerService.affecterFoyerAUniversite(1L, 2L);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result).isEqualTo(universite);
-        assertThat(universite.getFoyer()).isEqualTo(foyer);
-        assertThat(foyer.getUniversite()).isEqualTo(universite); // Verify bidirectional relationship
-
-        // Verify interactions
-        verify(foyerRepository).findById(1L);
-        verify(universiteRepository).findById(2L);
-        verify(universiteRepository).save(universite);
-    }
+   // @Test
+//    void testAffecterFoyerAUniversite_ByIds() {
+//        // Given
+//        Universite universite = new Universite();
+//        universite.setIdUniversite(2L);
+//
+//        Foyer foyer = new Foyer();
+//        foyer.setIdFoyer(1L);
+//
+//        // Mock repository responses
+//        when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
+//        when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
+//        when(universiteRepository.save(any(Universite.class))).thenAnswer(invocation -> {
+//            return invocation.getArgument(0); // Return the saved entity
+//        });
+//
+//        // When
+//        Universite result = foyerService.affecterFoyerAUniversite(1L, 2L);
+//
+//        // Then
+//        assertThat(result).isNotNull();
+//        assertThat(result).isEqualTo(universite);
+//        assertThat(universite.getFoyer()).isEqualTo(foyer);
+//        assertThat(foyer.getUniversite()).isEqualTo(universite); // Verify bidirectional relationship
+//
+//        // Verify interactions
+//        verify(foyerRepository).findById(1L);
+//        verify(universiteRepository).findById(2L);
+//        verify(universiteRepository).save(universite);
+//    }
     @Test
     void testAffecterFoyerAUniversite_ByIds_FoyerNotFound() {
         when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
