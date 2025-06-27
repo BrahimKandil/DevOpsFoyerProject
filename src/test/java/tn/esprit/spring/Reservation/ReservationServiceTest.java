@@ -66,12 +66,16 @@ class ReservationServiceTest {
             Reservation res = invocation.getArgument(0);
             if (res.getEtudiants() == null)
                 res.setEtudiants(new ArrayList<>());
-            res.getEtudiants().add(etudiant);
+            if(res == null) {
+                return  res;
+            }else {
+                res.getEtudiants().add(etudiant);
 
-            etudiant.getReservations().add(res);
-            chambre.getReservations().add(res);
+                etudiant.getReservations().add(res);
+                chambre.getReservations().add(res);
 
-            return res;
+                return res;
+            }
         });
 
         when(chambreRepository.save(any(Chambre.class))).thenReturn(chambre);

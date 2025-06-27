@@ -13,6 +13,7 @@ import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 import tn.esprit.spring.Services.Foyer.FoyerService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -177,6 +178,7 @@ public class FoyerServiceTest {
         when(universiteRepository.findById(2L)).thenReturn(Optional.of(new Universite()));
 
         assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
+                .isInstanceOf(NoSuchElementException.class)
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Foyer not found with id: 1");
     }
