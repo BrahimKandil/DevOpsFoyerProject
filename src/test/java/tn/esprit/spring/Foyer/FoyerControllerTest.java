@@ -60,7 +60,6 @@ class FoyerControllerTest {
             assertThat(response.getIdFoyer()).isEqualTo(1L);
             assertThat(response.getNomFoyer()).isEqualTo("Main Foyer");
         }catch (Exception e) {
-            // Handle exception if needed
             e.printStackTrace();
         }
     }
