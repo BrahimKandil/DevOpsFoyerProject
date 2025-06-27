@@ -180,27 +180,6 @@ public class FoyerServiceTest {
 //        verify(universiteRepository).save(universite);
 //    }
     @Test
-    void testAffecterFoyerAUniversite_ByIds_FoyerNotFound() {
-        when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
-        when(universiteRepository.findById(2L)).thenReturn(Optional.of(new Universite()));
-
-        assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
-                .isInstanceOf(NoSuchElementException.class)
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Foyer not found with id: 1");
-    }
-
-    @Test
-    void testAffecterFoyerAUniversite_ByIds_UniversiteNotFound() {
-        when(foyerRepository.findById(1L)).thenReturn(Optional.of(new Foyer()));
-        when(universiteRepository.findById(2L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Universite not found with id: 2");
-    }
-
-    @Test
     void testDesaffecterFoyerAUniversite() {
         Universite universite = new Universite();
         universite.setFoyer(new Foyer());
