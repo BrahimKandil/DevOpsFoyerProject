@@ -40,7 +40,7 @@ class ReservationServiceTest {
 
     @Test
     void testAjouterReservationEtAssignerAChambreEtAEtudiant_ChambreHasCapacity() {
-        // Given: a chambre with capacity for DOUBLE (2 students)
+        // Given
         Chambre chambre = new Chambre();
         chambre.setIdChambre(1L);
         chambre.setNumeroChambre(101L);
@@ -55,38 +55,26 @@ class ReservationServiceTest {
         etudiant.setCin(123456L);
         etudiant.setReservations(new ArrayList<>());
 
-        // Mock repository responses
         when(chambreRepository.findByNumeroChambre(101L)).thenReturn(chambre);
         when(etudiantRepository.findByCin(123456L)).thenReturn(etudiant);
         when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
                 eq(1L), any(LocalDate.class), any(LocalDate.class)
-        )).thenReturn(1); // Only one existing reservation
+        )).thenReturn(1);
 
-        // Simulate saving reservation
+        // Fix: make sure new Reservation object has initialized list
         when(repo.save(any(Reservation.class))).thenAnswer(invocation -> {
             Reservation res = invocation.getArgument(0);
-            // Ensure collections are initialized
-            if (res.getEtudiants() == null) {
+            if (res.getEtudiants() == null)
                 res.setEtudiants(new ArrayList<>());
-            }
             res.getEtudiants().add(etudiant);
 
-            // Also initialize the other side of the relationship
-            if (etudiant.getReservations() == null) {
-                etudiant.setReservations(new ArrayList<>());
-            }
             etudiant.getReservations().add(res);
+            chambre.getReservations().add(res);
 
             return res;
         });
 
-        when(chambreRepository.save(any(Chambre.class))).thenAnswer(invocation -> {
-            Chambre c = invocation.getArgument(0);
-            if (c.getReservations() == null) {
-                c.setReservations(new ArrayList<>());
-            }
-            return c;
-        });
+        when(chambreRepository.save(any(Chambre.class))).thenReturn(chambre);
 
         // When
         Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(101L, 123456L);
@@ -97,7 +85,6 @@ class ReservationServiceTest {
         assertThat(res.getEtudiants()).contains(etudiant);
         assertThat(chambre.getReservations()).contains(res);
 
-        // Verify interactions
         verify(chambreRepository).findByNumeroChambre(101L);
         verify(etudiantRepository).findByCin(123456L);
         verify(repo).save(any(Reservation.class));

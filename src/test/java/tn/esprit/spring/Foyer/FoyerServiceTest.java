@@ -150,27 +150,22 @@ public class FoyerServiceTest {
 
     @Test
     void testAffecterFoyerAUniversite_ByIds() {
-        // Given
         Universite universite = new Universite();
         universite.setIdUniversite(2L);
 
         Foyer foyer = new Foyer();
         foyer.setIdFoyer(1L);
 
-        // Mock repository responses
         when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
         when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
-        when(universiteRepository.save(any(Universite.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(universiteRepository.save(any(Universite.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         Universite result = foyerService.affecterFoyerAUniversite(1L, 2L);
 
-        // Then
         assertThat(result).isNotNull();
         assertThat(result).isEqualTo(universite);
         assertThat(universite.getFoyer()).isEqualTo(foyer);
 
-        // Verify repository interactions
         verify(universiteRepository).findById(2L);
         verify(foyerRepository).findById(1L);
         verify(universiteRepository).save(universite);
@@ -178,11 +173,9 @@ public class FoyerServiceTest {
 
     @Test
     void testAffecterFoyerAUniversite_ByIds_FoyerNotFound() {
-        // Given
         when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
         when(universiteRepository.findById(2L)).thenReturn(Optional.of(new Universite()));
 
-        // When/Then
         assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Foyer not found with id: 1");
@@ -190,11 +183,9 @@ public class FoyerServiceTest {
 
     @Test
     void testAffecterFoyerAUniversite_ByIds_UniversiteNotFound() {
-        // Given
         when(foyerRepository.findById(1L)).thenReturn(Optional.of(new Foyer()));
         when(universiteRepository.findById(2L)).thenReturn(Optional.empty());
 
-        // When/Then
         assertThatThrownBy(() -> foyerService.affecterFoyerAUniversite(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Universite not found with id: 2");
@@ -202,16 +193,13 @@ public class FoyerServiceTest {
 
     @Test
     void testDesaffecterFoyerAUniversite() {
-        // Given
         Universite universite = new Universite();
         universite.setFoyer(new Foyer());
         when(universiteRepository.findById(2L)).thenReturn(Optional.of(universite));
         when(universiteRepository.save(universite)).thenReturn(universite);
 
-        // When
         Universite result = foyerService.desaffecterFoyerAUniversite(2L);
 
-        // Then
         assertThat(result).isEqualTo(universite);
         assertThat(universite.getFoyer()).isNull();
         verify(universiteRepository).findById(2L);
