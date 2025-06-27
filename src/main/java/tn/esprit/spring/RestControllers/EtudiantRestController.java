@@ -1,17 +1,19 @@
 package tn.esprit.spring.RestControllers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.DAO.Entities.Etudiant;
+import tn.esprit.spring.Services.Etudiant.EtudiantService;
 import tn.esprit.spring.Services.Etudiant.IEtudiantService;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("etudiant")
-@AllArgsConstructor
+//@RestController
+@Controller
+@RequestMapping("/etudiant")
 public class EtudiantRestController {
-    IEtudiantService service;
+    EtudiantService service;
 
     @PostMapping("addOrUpdate")
     Etudiant addOrUpdate(@RequestBody Etudiant e) {
