@@ -3,18 +3,18 @@ package tn.esprit.spring.Services.Universite;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import tn.esprit.spring.DAO.Entities.Foyer;
 import tn.esprit.spring.DAO.Entities.Universite;
-import tn.esprit.spring.DAO.Repositories.FoyerRepository;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class UniversiteService implements IUniversiteService {
-    UniversiteRepository repo;
+    public final UniversiteRepository repo;
+    public UniversiteService(UniversiteRepository repo) {
+        this.repo = repo;
+    }
 
     @Override
     public Universite addOrUpdate(Universite u) {

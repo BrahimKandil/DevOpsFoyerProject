@@ -1,11 +1,9 @@
 package tn.esprit.spring.RestControllers;
 
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.Services.Etudiant.EtudiantService;
-import tn.esprit.spring.Services.Etudiant.IEtudiantService;
 
 import java.util.List;
 
