@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class test {
 //
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 300000)
     void affiche(){
         log.info("Bonjour");
     }
