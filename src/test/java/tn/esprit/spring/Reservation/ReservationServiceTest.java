@@ -57,25 +57,31 @@ class ReservationServiceTest {
 
         when(chambreRepository.findByNumeroChambre(101L)).thenReturn(chambre);
         when(etudiantRepository.findByCin(123456L)).thenReturn(etudiant);
+
+        // Simulate that the chambre has room (only 1 reservation exists)
         when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
                 eq(1L), any(LocalDate.class), any(LocalDate.class)
         )).thenReturn(1);
 
-        // Fix: make sure new Reservation object has initialized list
+        // Save behavior for reservation with null-safe checks
         when(repo.save(any(Reservation.class))).thenAnswer(invocation -> {
             Reservation res = invocation.getArgument(0);
+
+            // Safely initialize list if needed
             if (res.getEtudiants() == null)
                 res.setEtudiants(new ArrayList<>());
-            if(res == null) {
-                return  res;
-            }else {
-                res.getEtudiants().add(etudiant);
 
-                etudiant.getReservations().add(res);
-                chambre.getReservations().add(res);
+            if (etudiant.getReservations() == null)
+                etudiant.setReservations(new ArrayList<>());
 
-                return res;
-            }
+            if (chambre.getReservations() == null)
+                chambre.setReservations(new ArrayList<>());
+
+            res.getEtudiants().add(etudiant);
+            etudiant.getReservations().add(res);
+            chambre.getReservations().add(res);
+
+            return res;
         });
 
         when(chambreRepository.save(any(Chambre.class))).thenReturn(chambre);
