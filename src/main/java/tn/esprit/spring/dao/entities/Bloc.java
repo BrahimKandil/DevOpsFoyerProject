@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Bloc{
+public class Bloc implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long idBloc;
@@ -28,5 +29,5 @@ public class Bloc{
     Foyer foyer;
     @OneToMany(mappedBy = "bloc", fetch = FetchType.EAGER)
     @JsonIgnore
-    List<Chambre> chambres= new ArrayList<>();
+    private List<Chambre> chambres= new ArrayList<>();
 }
