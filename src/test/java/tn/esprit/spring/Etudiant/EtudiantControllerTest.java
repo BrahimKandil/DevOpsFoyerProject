@@ -92,7 +92,7 @@ class EtudiantControllerTest {
     }
 
     @Test
-    void testDelete() throws Exception {
+    void testDelete(){
         // For delete, just mock doNothing on service.delete
         Etudiant sampleEtudiant = new Etudiant();
         sampleEtudiant.setIdEtudiant(1L);

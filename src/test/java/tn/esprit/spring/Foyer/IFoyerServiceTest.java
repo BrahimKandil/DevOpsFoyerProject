@@ -106,7 +106,6 @@ import static org.mockito.Mockito.*;
     @Test
     void testAjouterFoyerEtAffecterAUniversite() {
         Foyer f = new Foyer();
-        Universite u = new Universite();
 
         when(foyerService.ajouterFoyerEtAffecterAUniversite(f, 1L)).thenReturn(f);
 
