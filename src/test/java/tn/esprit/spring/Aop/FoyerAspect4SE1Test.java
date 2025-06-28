@@ -1,4 +1,4 @@
-package tn.esprit.spring.AOP;
+package tn.esprit.spring.Aop;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

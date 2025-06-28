@@ -2,8 +2,8 @@ package tn.esprit.spring.Universite;
 
 
 import org.junit.jupiter.api.Test;
-import tn.esprit.spring.DAO.Entities.Foyer;
-import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.Dao.Entities.Foyer;
+import tn.esprit.spring.Dao.Entities.Universite;
 
 import static org.assertj.core.api.Assertions.*;
 

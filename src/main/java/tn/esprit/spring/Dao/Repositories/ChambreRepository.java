@@ -1,10 +1,10 @@
-package tn.esprit.spring.DAO.Repositories;
+package tn.esprit.spring.Dao.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import tn.esprit.spring.DAO.Entities.Chambre;
-import tn.esprit.spring.DAO.Entities.TypeChambre;
+import tn.esprit.spring.Dao.Entities.Chambre;
+import tn.esprit.spring.Dao.Entities.TypeChambre;
 
 import java.time.LocalDate;
 import java.util.List;

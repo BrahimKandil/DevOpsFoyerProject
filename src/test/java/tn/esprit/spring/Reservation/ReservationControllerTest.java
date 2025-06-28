@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tn.esprit.spring.DAO.Entities.Reservation;
+import tn.esprit.spring.Dao.Entities.Reservation;
 import tn.esprit.spring.RestControllers.ReservationRestController;
 import tn.esprit.spring.Services.Reservation.ReservationService;
 

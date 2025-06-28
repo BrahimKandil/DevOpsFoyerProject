@@ -1,7 +1,7 @@
 package tn.esprit.spring.Reservation;
 
 import org.junit.jupiter.api.Test;
-import tn.esprit.spring.DAO.Entities.*;
+import tn.esprit.spring.Dao.Entities.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

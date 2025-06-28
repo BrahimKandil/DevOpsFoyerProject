@@ -4,12 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import tn.esprit.spring.DAO.Entities.Bloc;
-import tn.esprit.spring.DAO.Entities.Chambre;
-import tn.esprit.spring.DAO.Entities.Reservation;
-import tn.esprit.spring.DAO.Entities.TypeChambre;
-import tn.esprit.spring.DAO.Repositories.BlocRepository;
-import tn.esprit.spring.DAO.Repositories.ChambreRepository;
+import tn.esprit.spring.Dao.Entities.Bloc;
+import tn.esprit.spring.Dao.Entities.Chambre;
+import tn.esprit.spring.Dao.Entities.Reservation;
+import tn.esprit.spring.Dao.Entities.TypeChambre;
+import tn.esprit.spring.Dao.Repositories.BlocRepository;
+import tn.esprit.spring.Dao.Repositories.ChambreRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

@@ -7,8 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
-import tn.esprit.spring.DAO.Entities.Foyer;
-import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.Dao.Entities.Foyer;
+import tn.esprit.spring.Dao.Entities.Universite;
 import tn.esprit.spring.Services.Foyer.IFoyerService;
 
 import java.util.List;

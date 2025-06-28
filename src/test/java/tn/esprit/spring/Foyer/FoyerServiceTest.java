@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tn.esprit.spring.DAO.Entities.*;
-import tn.esprit.spring.DAO.Repositories.BlocRepository;
-import tn.esprit.spring.DAO.Repositories.FoyerRepository;
-import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
+import tn.esprit.spring.Dao.Entities.*;
+import tn.esprit.spring.Dao.Repositories.BlocRepository;
+import tn.esprit.spring.Dao.Repositories.FoyerRepository;
+import tn.esprit.spring.Dao.Repositories.UniversiteRepository;
 import tn.esprit.spring.Services.Foyer.FoyerService;
 
 import java.util.List;

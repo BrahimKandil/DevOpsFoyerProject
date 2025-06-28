@@ -1,7 +1,7 @@
 package tn.esprit.spring.Services.Chambre;
 
-import tn.esprit.spring.DAO.Entities.Chambre;
-import tn.esprit.spring.DAO.Entities.TypeChambre;
+import tn.esprit.spring.Dao.Entities.Chambre;
+import tn.esprit.spring.Dao.Entities.TypeChambre;
 
 import java.util.List;
 

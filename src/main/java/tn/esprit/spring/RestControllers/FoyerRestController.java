@@ -2,8 +2,8 @@ package tn.esprit.spring.RestControllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.spring.DAO.Entities.Foyer;
-import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.Dao.Entities.Foyer;
+import tn.esprit.spring.Dao.Entities.Universite;
 import tn.esprit.spring.Services.Foyer.IFoyerService;
 
 import java.util.List;

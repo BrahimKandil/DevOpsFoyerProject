@@ -1,7 +1,7 @@
 package tn.esprit.spring.Services.Foyer;
 
-import tn.esprit.spring.DAO.Entities.Foyer;
-import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.Dao.Entities.Foyer;
+import tn.esprit.spring.Dao.Entities.Universite;
 
 import java.util.List;
 

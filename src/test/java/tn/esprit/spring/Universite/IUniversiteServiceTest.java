@@ -8,8 +8,8 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tn.esprit.spring.DAO.Entities.Universite;
-import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
+import tn.esprit.spring.Dao.Entities.Universite;
+import tn.esprit.spring.Dao.Repositories.UniversiteRepository;
 import tn.esprit.spring.Services.Universite.UniversiteService;
 
 import java.util.*;

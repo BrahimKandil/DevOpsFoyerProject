@@ -1,16 +1,13 @@
 package tn.esprit.spring.Etudiant;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tn.esprit.spring.DAO.Entities.Etudiant;
-import tn.esprit.spring.DAO.Entities.Reservation;
-import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
-import tn.esprit.spring.DAO.Repositories.ReservationRepository;
+import tn.esprit.spring.Dao.Entities.Etudiant;
+import tn.esprit.spring.Dao.Entities.Reservation;
+import tn.esprit.spring.Dao.Repositories.EtudiantRepository;
+import tn.esprit.spring.Dao.Repositories.ReservationRepository;
 import tn.esprit.spring.Services.Etudiant.EtudiantService;
 
 import java.util.ArrayList;

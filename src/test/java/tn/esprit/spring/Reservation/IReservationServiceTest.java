@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tn.esprit.spring.DAO.Entities.Reservation;
-import tn.esprit.spring.DAO.Repositories.ReservationRepository;
+import tn.esprit.spring.Dao.Entities.Reservation;
+import tn.esprit.spring.Dao.Repositories.ReservationRepository;
 import tn.esprit.spring.Services.Reservation.ReservationService;
 
 import java.time.LocalDate;

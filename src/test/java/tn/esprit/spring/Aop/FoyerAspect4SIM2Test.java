@@ -1,4 +1,4 @@
-package tn.esprit.spring.AOP;
+package tn.esprit.spring.Aop;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -29,22 +29,22 @@ class FoyerAspect4SIM2Test {
     @Aspect
     static class TestAspect {
 
-        @Before("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.ajouter*(..))")
+        @Before("execution(* tn.esprit.spring.Aop.FoyerAspect4SIM2Test.DummyService.ajouter*(..))")
         public void beforeAjouter(org.aspectj.lang.JoinPoint jp) {
             System.out.println("Ranni méthode ajouter");
         }
 
-        @Before("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.*(..))")
+        @Before("execution(* tn.esprit.spring.Aop.FoyerAspect4SIM2Test.DummyService.*(..))")
         public void beforeAll(org.aspectj.lang.JoinPoint jp) {
             System.out.println("ranni d5alt lil méthode " + jp.getSignature().getName());
         }
 
-        @After("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.*(..))")
+        @After("execution(* tn.esprit.spring.Aop.FoyerAspect4SIM2Test.DummyService.*(..))")
         public void afterAll(org.aspectj.lang.JoinPoint jp) {
             System.out.println("ranni 5rajt mil méthode " + jp.getSignature().getName());
         }
 
-        @Around("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.*(..))")
+        @Around("execution(* tn.esprit.spring.Aop.FoyerAspect4SIM2Test.DummyService.*(..))")
         public Object profile(ProceedingJoinPoint pjp) throws Throwable {
             long start = System.currentTimeMillis();
             Object obj = pjp.proceed();

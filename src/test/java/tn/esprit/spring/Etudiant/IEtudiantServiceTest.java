@@ -10,7 +10,7 @@ import tn.esprit.spring.Services.Etudiant.IEtudiantService;
 
 import org.junit.jupiter.api.Test;
 
-import tn.esprit.spring.DAO.Entities.*;
+import tn.esprit.spring.Dao.Entities.*;
 
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
