@@ -1,17 +1,17 @@
 package tn.esprit.spring.RestControllers;
 
-import org.springframework.stereotype.Controller;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.DAO.Entities.Bloc;
-import tn.esprit.spring.Services.Bloc.BlocService;
+import tn.esprit.spring.Services.Bloc.IBlocService;
 
 import java.util.List;
 
-//@RestController
-@Controller
-@RequestMapping("/bloc")
+@RestController
+@RequestMapping("bloc")
+@AllArgsConstructor
 public class BlocRestController {
-    BlocService service;
+    IBlocService service;
 
     @PostMapping("addOrUpdate")
     Bloc addOrUpdate(@RequestBody Bloc b) {

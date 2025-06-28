@@ -1,24 +1,20 @@
 package tn.esprit.spring.RestControllers;
 
-import org.springframework.stereotype.Controller;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.DAO.Entities.Foyer;
 import tn.esprit.spring.DAO.Entities.Universite;
-import tn.esprit.spring.Services.Foyer.FoyerService;
+import tn.esprit.spring.Services.Etudiant.IEtudiantService;
+import tn.esprit.spring.Services.Foyer.IFoyerService;
 
 import java.util.List;
 
-//@RestController
-@Controller
+@RestController
 @RequestMapping("foyer")
-//@AllArgsConstructor
+@AllArgsConstructor
 public class FoyerRestController {
-
-    public final FoyerService service;
-
-    public FoyerRestController(FoyerService service) {
-        this.service = service;
-    }
+    IFoyerService service;
 
     @PostMapping("addOrUpdate")
     public Foyer addOrUpdate(@RequestBody Foyer f) {

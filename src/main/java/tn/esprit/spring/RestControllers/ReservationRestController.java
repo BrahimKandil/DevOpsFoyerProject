@@ -1,21 +1,20 @@
 package tn.esprit.spring.RestControllers;
 
-import org.springframework.stereotype.Controller;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.DAO.Entities.Reservation;
-import tn.esprit.spring.Services.Reservation.ReservationService;
+import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.Services.Reservation.IReservationService;
+import tn.esprit.spring.Services.Universite.IUniversiteService;
 
 import java.time.LocalDate;
 import java.util.List;
 
-//@RestController
-@Controller
+@RestController
 @RequestMapping("reservation")
+@AllArgsConstructor
 public class ReservationRestController {
-    private final ReservationService service;
-    public ReservationRestController(ReservationService service) {
-        this.service = service;
-    }
+    IReservationService service;
 
     @PostMapping("addOrUpdate")
     Reservation addOrUpdate(@RequestBody Reservation r) {

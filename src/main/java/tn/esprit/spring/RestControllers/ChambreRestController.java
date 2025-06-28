@@ -1,21 +1,18 @@
 package tn.esprit.spring.RestControllers;
 
-import org.springframework.stereotype.Controller;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.DAO.Entities.Chambre;
 import tn.esprit.spring.DAO.Entities.TypeChambre;
-import tn.esprit.spring.Services.Chambre.ChambreService;
+import tn.esprit.spring.Services.Chambre.IChambreService;
 
 import java.util.List;
 
-//@RestController
-@Controller
-@RequestMapping("/chambre")
+@RestController
+@RequestMapping("chambre")
+@AllArgsConstructor
 public class ChambreRestController {
-    private final ChambreService service;
-    public ChambreRestController(ChambreService service) {
-        this.service = service;
-    }
+    IChambreService service;
 
     @PostMapping("addOrUpdate")
     Chambre addOrUpdate(@RequestBody Chambre c) {

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.RestControllers.EtudiantRestController;
+import tn.esprit.spring.Services.Etudiant.EtudiantService;
 import tn.esprit.spring.Services.Etudiant.IEtudiantService;
 
 import java.time.LocalDate;
@@ -26,16 +30,16 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(EtudiantRestController.class)
+@ExtendWith(MockitoExtension.class)
 public class EtudiantControllerTest {
 
-    @Autowired
+    @Mock
     private MockMvc mockMvc;
 
     @MockBean
-    private IEtudiantService service;
+    private EtudiantService service;
 
-    @Autowired
+    @Mock
     private ObjectMapper objectMapper;
 
     private Etudiant sampleEtudiant;

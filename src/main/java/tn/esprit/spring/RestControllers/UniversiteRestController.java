@@ -1,19 +1,19 @@
 package tn.esprit.spring.RestControllers;
 
-import org.springframework.stereotype.Controller;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.DAO.Entities.Foyer;
 import tn.esprit.spring.DAO.Entities.Universite;
-
-import tn.esprit.spring.Services.Universite.UniversiteService;
+import tn.esprit.spring.Services.Foyer.IFoyerService;
+import tn.esprit.spring.Services.Universite.IUniversiteService;
 
 import java.util.List;
 
-//@RestController
-@Controller
-@RequestMapping("/universite")
+@RestController
+@RequestMapping("universite")
+@AllArgsConstructor
 public class UniversiteRestController {
-    UniversiteService service;
+    IUniversiteService service;
 
     @PostMapping("addOrUpdate")
     Universite addOrUpdate(@RequestBody Universite u) {
