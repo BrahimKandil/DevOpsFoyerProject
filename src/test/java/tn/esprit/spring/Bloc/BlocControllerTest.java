@@ -10,9 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tn.esprit.spring.Dao.Entities.Bloc;
-import tn.esprit.spring.RestControllers.BlocRestController;
-import tn.esprit.spring.Services.Bloc.BlocService;
+import tn.esprit.spring.dao.entities.Bloc;
+import tn.esprit.spring.restcontrollers.BlocRestController;
+import tn.esprit.spring.services.bloc.BlocService;
 
 import java.util.List;
 

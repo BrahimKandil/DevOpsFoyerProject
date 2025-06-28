@@ -10,10 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tn.esprit.spring.Dao.Entities.Chambre;
-import tn.esprit.spring.Dao.Entities.TypeChambre;
-import tn.esprit.spring.RestControllers.ChambreRestController;
-import tn.esprit.spring.Services.Chambre.ChambreService;
+import tn.esprit.spring.dao.entities.Chambre;
+import tn.esprit.spring.dao.entities.TypeChambre;
+import tn.esprit.spring.restcontrollers.ChambreRestController;
+import tn.esprit.spring.services.chambre.ChambreService;
 
 import java.util.List;
 

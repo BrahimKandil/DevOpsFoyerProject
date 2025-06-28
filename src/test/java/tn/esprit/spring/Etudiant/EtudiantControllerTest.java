@@ -14,9 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tn.esprit.spring.Dao.Entities.Etudiant;
-import tn.esprit.spring.RestControllers.EtudiantRestController;
-import tn.esprit.spring.Services.Etudiant.EtudiantService;
+import tn.esprit.spring.dao.entities.Etudiant;
+import tn.esprit.spring.restcontrollers.EtudiantRestController;
+import tn.esprit.spring.services.etudiant.EtudiantService;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -15,10 +15,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import tn.esprit.spring.Dao.Entities.Foyer;
-import tn.esprit.spring.Dao.Entities.Universite;
-import tn.esprit.spring.RestControllers.FoyerRestController;
-import tn.esprit.spring.Services.Foyer.FoyerService;
+import tn.esprit.spring.dao.entities.Foyer;
+import tn.esprit.spring.dao.entities.Universite;
+import tn.esprit.spring.restcontrollers.FoyerRestController;
+import tn.esprit.spring.services.foyer.FoyerService;
 
 @ExtendWith(MockitoExtension.class)
 class FoyerControllerTest {

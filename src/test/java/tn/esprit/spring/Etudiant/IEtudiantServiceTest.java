@@ -6,11 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tn.esprit.spring.Services.Etudiant.IEtudiantService;
+import tn.esprit.spring.services.etudiant.IEtudiantService;
 
 import org.junit.jupiter.api.Test;
 
-import tn.esprit.spring.Dao.Entities.*;
+import tn.esprit.spring.dao.entities.*;
 
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;

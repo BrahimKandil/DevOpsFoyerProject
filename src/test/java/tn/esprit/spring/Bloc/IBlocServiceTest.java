@@ -3,8 +3,8 @@ package tn.esprit.spring.Bloc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import tn.esprit.spring.Dao.Entities.Bloc;
-import tn.esprit.spring.Services.Bloc.IBlocService;
+import tn.esprit.spring.dao.entities.Bloc;
+import tn.esprit.spring.services.bloc.IBlocService;
 
 import java.util.List;
 

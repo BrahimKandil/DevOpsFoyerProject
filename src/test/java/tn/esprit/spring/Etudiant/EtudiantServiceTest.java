@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tn.esprit.spring.Dao.Entities.Etudiant;
-import tn.esprit.spring.Dao.Entities.Reservation;
-import tn.esprit.spring.Dao.Repositories.EtudiantRepository;
-import tn.esprit.spring.Dao.Repositories.ReservationRepository;
-import tn.esprit.spring.Services.Etudiant.EtudiantService;
+import tn.esprit.spring.dao.entities.Etudiant;
+import tn.esprit.spring.dao.entities.Reservation;
+import tn.esprit.spring.dao.repositories.EtudiantRepository;
+import tn.esprit.spring.dao.repositories.ReservationRepository;
+import tn.esprit.spring.services.etudiant.EtudiantService;
 
 import java.util.ArrayList;
 import java.util.List;

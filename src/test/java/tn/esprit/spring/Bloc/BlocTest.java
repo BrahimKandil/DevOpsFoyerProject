@@ -1,9 +1,9 @@
 package tn.esprit.spring.Bloc;
 
 import org.junit.jupiter.api.Test;
-import tn.esprit.spring.Dao.Entities.Bloc;
-import tn.esprit.spring.Dao.Entities.Chambre;
-import tn.esprit.spring.Dao.Entities.Foyer;
+import tn.esprit.spring.dao.entities.Bloc;
+import tn.esprit.spring.dao.entities.Chambre;
+import tn.esprit.spring.dao.entities.Foyer;
 
 import java.util.List;
 

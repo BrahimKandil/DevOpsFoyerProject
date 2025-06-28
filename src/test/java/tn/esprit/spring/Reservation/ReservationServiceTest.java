@@ -5,13 +5,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import tn.esprit.spring.Dao.Entities.*;
-import tn.esprit.spring.Dao.Entities.Chambre;
-import tn.esprit.spring.Dao.Entities.TypeChambre;
-import tn.esprit.spring.Dao.Repositories.ChambreRepository;
-import tn.esprit.spring.Dao.Repositories.EtudiantRepository;
-import tn.esprit.spring.Dao.Repositories.ReservationRepository;
-import tn.esprit.spring.Services.Reservation.ReservationService;
+import tn.esprit.spring.dao.entities.*;
+import tn.esprit.spring.dao.entities.Chambre;
+import tn.esprit.spring.dao.entities.TypeChambre;
+import tn.esprit.spring.dao.repositories.ChambreRepository;
+import tn.esprit.spring.dao.repositories.EtudiantRepository;
+import tn.esprit.spring.dao.repositories.ReservationRepository;
+import tn.esprit.spring.services.reservation.ReservationService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

@@ -1,8 +1,8 @@
 package tn.esprit.spring.Etudiant;
 
 import org.junit.jupiter.api.Test;
-import tn.esprit.spring.Dao.Entities.Etudiant;
-import tn.esprit.spring.Dao.Entities.Reservation;
+import tn.esprit.spring.dao.entities.Etudiant;
+import tn.esprit.spring.dao.entities.Reservation;
 
 import java.time.LocalDate;
 import java.util.List;
