@@ -1,12 +1,10 @@
 package tn.esprit.spring.Reservation;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import tn.esprit.spring.DAO.Entities.*;
 import tn.esprit.spring.DAO.Entities.Chambre;
 import tn.esprit.spring.DAO.Entities.TypeChambre;
@@ -17,6 +15,8 @@ import tn.esprit.spring.Services.Reservation.ReservationService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +27,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceTest {
 
-    private MockMvc mockMvc;
     @InjectMocks
     private ReservationService reservationService;
 
@@ -39,14 +38,6 @@ class ReservationServiceTest {
 
     @Mock
     private EtudiantRepository etudiantRepository;
-
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(reservationService).build();
-
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
     void testAjouterReservationEtAssignerAChambreEtAEtudiant_ChambreHasCapacity() {
         // Given
@@ -116,6 +107,73 @@ class ReservationServiceTest {
     }
 
     @Test
+    void testAjouterReservation_ChambreSimple() {
+        Chambre chambre = new Chambre();
+        chambre.setIdChambre(2L);
+        chambre.setNumeroChambre(102L);
+        chambre.setTypeC(TypeChambre.SIMPLE);
+        chambre.setReservations(new ArrayList<>());
+
+        Bloc bloc = new Bloc();
+        bloc.setNomBloc("BlocB");
+        chambre.setBloc(bloc);
+
+        Etudiant etudiant = new Etudiant();
+        etudiant.setCin(111111L);
+        etudiant.setReservations(new ArrayList<>());
+
+        when(chambreRepository.findByNumeroChambre(102L)).thenReturn(chambre);
+        when(etudiantRepository.findByCin(111111L)).thenReturn(etudiant);
+        when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
+                eq(2L), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(0); // Ensure space available
+
+        ArrayList<Etudiant> etudiants = new ArrayList<>();
+        etudiants.add(etudiant);
+        when(repo.save(any(Reservation.class))).thenAnswer(invocation -> {
+            Reservation res = invocation.getArgument(0);
+            res.setEtudiants(etudiants); // Trigger `addAll`
+            return res;
+        });
+
+        when(chambreRepository.save(any(Chambre.class))).thenReturn(chambre);
+
+        Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(102L, 111111L);
+
+        assertThat(res).isNotNull();
+        assertThat(res.getEtudiants()).contains(etudiant);
+        assertThat(res.isEstValide()).isTrue();
+    }
+
+    @Test
+    void testAjouterReservation_ChambreFullShouldReturnNull() {
+        Chambre chambre = new Chambre();
+        chambre.setIdChambre(3L);
+        chambre.setNumeroChambre(103L);
+        chambre.setTypeC(TypeChambre.TRIPLE);
+        chambre.setReservations(new ArrayList<>());
+
+        Bloc bloc = new Bloc();
+        bloc.setNomBloc("BlocC");
+        chambre.setBloc(bloc);
+
+        Etudiant etudiant = new Etudiant();
+        etudiant.setCin(999999L);
+        etudiant.setReservations(new ArrayList<>());
+
+        when(chambreRepository.findByNumeroChambre(103L)).thenReturn(chambre);
+        when(etudiantRepository.findByCin(999999L)).thenReturn(etudiant);
+        when(chambreRepository.countReservationsByIdChambreAndReservationsAnneeUniversitaireBetween(
+                eq(3L), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(3); // Chambre is full
+
+        Reservation res = reservationService.ajouterReservationEtAssignerAChambreEtAEtudiant(103L, 999999L);
+
+        assertThat(res).isNull(); // 💥 Should cover the `return null`
+    }
+
+
+    @Test
     void getDateDebutAU_shouldReturnPreviousYearWhenBeforeAugust() {
         // Mock current date to June 15, 2023
         LocalDate mockDate = LocalDate.of(2023, 6, 15);
@@ -162,4 +220,160 @@ class ReservationServiceTest {
             assertEquals(LocalDate.of(2024, 6, 30), result);
         }
     }
+    @Test
+    void testAnnulerReservation_shouldRemoveReservationSuccessfully() {
+        // Arrange
+        long cin = 123456L;
+        String reservationId = "2024/2025-BlocA-101-123456";
+
+        Etudiant etudiant = new Etudiant();
+        etudiant.setCin(cin);
+        ArrayList<Etudiant> etudiants = new ArrayList<>();
+        etudiants.add(etudiant);
+
+
+        Reservation reservation = Reservation.builder()
+                .idReservation(reservationId)
+                .estValide(true)
+                .etudiants(etudiants)
+                .build();
+        ArrayList<Reservation> reservations = new ArrayList<>();
+        reservations.add(reservation);
+        Chambre chambre = new Chambre();
+        chambre.setReservations(reservations);
+
+        // Mock behavior
+        when(repo.findByEtudiantsCinAndEstValide(cin, true)).thenReturn(reservation);
+        when(chambreRepository.findByReservationsIdReservation(reservationId)).thenReturn(chambre);
+
+        // Act
+        String result = reservationService.annulerReservation(cin);
+
+        // Assert
+        assertThat(result).isEqualTo("La réservation " + reservationId + " est annulée avec succés");
+        assertThat(chambre.getReservations()).doesNotContain(reservation);
+
+        verify(repo).findByEtudiantsCinAndEstValide(cin, true);
+        verify(chambreRepository).findByReservationsIdReservation(reservationId);
+        verify(chambreRepository).save(chambre);
+        verify(repo).delete(reservation);
+    }
+    @Test
+    void testAffectReservationAChambre_shouldAffectSuccessfully() {
+        // Arrange
+        String reservationId = "2024/2025-BlocA-101-123456";
+        long chambreId = 1L;
+
+        Reservation reservation = Reservation.builder()
+                .idReservation(reservationId)
+                .build();
+
+        Chambre chambre = new Chambre();
+        chambre.setReservations(new ArrayList<>());
+
+        // Mock repository behavior
+        when(repo.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(chambreRepository.findById(chambreId)).thenReturn(Optional.of(chambre));
+
+        // Act
+        reservationService.affectReservationAChambre(reservationId, chambreId);
+
+        // Assert
+        assertThat(chambre.getReservations()).contains(reservation);
+        verify(repo).findById(reservationId);
+        verify(chambreRepository).findById(chambreId);
+        verify(chambreRepository).save(chambre);
+    }
+
+    @Test
+    void testAffectReservationAChambre_shouldDoNothingIfNotFound() {
+        // Arrange
+        String reservationId = "res-1";
+        long chambreId = 2L;
+
+        when(repo.findById(reservationId)).thenReturn(Optional.empty());
+        when(chambreRepository.findById(chambreId)).thenReturn(Optional.empty());
+
+        // Act
+        reservationService.affectReservationAChambre(reservationId, chambreId);
+
+        // Assert
+        verify(chambreRepository, never()).save(any());
+    }
+    @Test
+    void testAnnulerReservation() {
+        Etudiant etudiant = new Etudiant();
+        etudiant.setCin(123456L);
+
+        Reservation reservation = new Reservation();
+        reservation.setIdReservation("2024/2025-B-101-123456");
+        reservation.setEstValide(true);
+        reservation.setEtudiants(List.of(etudiant));
+
+        Chambre chambre = new Chambre();
+        chambre.setReservations(new ArrayList<>(List.of(reservation)));
+
+        when(repo.findByEtudiantsCinAndEstValide(123456L, true)).thenReturn(reservation);
+        when(chambreRepository.findByReservationsIdReservation(reservation.getIdReservation())).thenReturn(chambre);
+
+        String result = reservationService.annulerReservation(123456L);
+
+        assertThat(result).contains("est annulée avec succés");
+        verify(repo).delete(reservation);
+        verify(chambreRepository).save(chambre);
+    }
+
+    @Test
+    void testAffectReservationAChambre() {
+        Reservation reservation = new Reservation();
+        Chambre chambre = new Chambre();
+        chambre.setReservations(new ArrayList<>());
+
+        when(repo.findById("res1")).thenReturn(Optional.of(reservation));
+        when(chambreRepository.findById(1L)).thenReturn(Optional.of(chambre));
+
+        reservationService.affectReservationAChambre("res1", 1L);
+
+        assertThat(chambre.getReservations()).contains(reservation);
+        verify(chambreRepository).save(chambre);
+    }
+    @Test
+    void testDeaffectReservationAChambre() {
+        Reservation reservation = new Reservation();
+        Chambre chambre = new Chambre();
+        chambre.setReservations(new ArrayList<>(List.of(reservation)));
+
+        when(repo.findById("res1")).thenReturn(Optional.of(reservation));
+        when(chambreRepository.findById(1L)).thenReturn(Optional.of(chambre));
+
+        reservationService.deaffectReservationAChambre("res1", 1L);
+
+        assertThat(chambre.getReservations()).doesNotContain(reservation);
+        verify(chambreRepository).save(chambre);
+    }
+    @Test
+    void testAnnulerReservations() {
+        // Create the fixed LocalDate to return from now()
+        LocalDate fakeNow = LocalDate.of(2024, 10, 1);
+
+        try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS)) {
+            // Only mock LocalDate.now() to return fakeNow
+            mockedLocalDate.when(LocalDate::now).thenReturn(fakeNow);
+
+            // Setup reservation with the same date
+            Reservation r1 = new Reservation();
+            r1.setIdReservation("res1");
+            r1.setEstValide(true);
+            r1.setAnneeUniversitaire(fakeNow);
+
+            when(repo.findByEstValideAndAnneeUniversitaireBetween(eq(true), any(LocalDate.class), any(LocalDate.class)))
+                    .thenReturn(List.of(r1));
+
+            reservationService.annulerReservations();
+
+            assertThat(r1.isEstValide()).isFalse();
+            verify(repo).save(r1);
+        }
+    }
+
 }

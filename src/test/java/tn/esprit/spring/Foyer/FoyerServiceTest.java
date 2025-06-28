@@ -15,10 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
- class FoyerServiceTest {
+class FoyerServiceTest {
 
     @InjectMocks
     private FoyerService foyerService;
@@ -129,6 +130,21 @@ import static org.mockito.Mockito.*;
         verify(universiteRepository).save(universite);
         assertThat(universite.getFoyer()).isEqualTo(foyer);
     }
+    @Test
+    void testAjouterFoyerEtAffecterAUniversite_UniversiteNotFound() {
+        Foyer foyer = new Foyer();
+
+        when(foyerRepository.save(foyer)).thenReturn(foyer);
+        when(universiteRepository.findById(99L)).thenReturn(Optional.empty()); // no Universite
+
+        Foyer result = foyerService.ajouterFoyerEtAffecterAUniversite(foyer, 99L);
+
+        assertNull(result);  // because method returns null in else branch
+        verify(foyerRepository).save(foyer);
+        verify(universiteRepository).findById(99L);
+        verifyNoMoreInteractions(blocRepository, universiteRepository); // no save called on blocs or universite
+    }
+
 
     @Test
     void testAjoutFoyerEtBlocs() {

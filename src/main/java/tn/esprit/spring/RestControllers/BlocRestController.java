@@ -13,12 +13,6 @@ import java.util.List;
 public class BlocRestController {
     IBlocService service;
 
-
-
-    @GetMapping("/")  // Handles "/Foyer/bloc/"
-    public String welcome() {
-        return "Bloc Controller is working!";
-    }
     @PostMapping("addOrUpdate")
     Bloc addOrUpdate(@RequestBody Bloc b) {
         return service.addOrUpdate(b);

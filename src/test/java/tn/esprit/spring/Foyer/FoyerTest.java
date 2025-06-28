@@ -4,6 +4,7 @@ package tn.esprit.spring.Foyer;
 import org.junit.jupiter.api.Test;
 import tn.esprit.spring.DAO.Entities.Bloc;
 import tn.esprit.spring.DAO.Entities.Foyer;
+import tn.esprit.spring.DAO.Entities.Universite;
 
 import java.util.List;
 
@@ -68,5 +69,13 @@ import static org.assertj.core.api.Assertions.assertThat;
         Foyer foyer = new Foyer();
         assertThat(foyer.getBlocs()).isNotNull();
         assertThat(foyer.getBlocs()).isEmpty();
+    }
+    @Test
+    void testSetAndGetUniversite() {
+       Foyer foyer = new Foyer();
+       Universite universite = new Universite();
+       foyer.setUniversite(universite);
+
+       assertThat(foyer.getUniversite()).isEqualTo(universite);
     }
 }

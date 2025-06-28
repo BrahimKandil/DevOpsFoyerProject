@@ -82,6 +82,57 @@ class BlocServiceTest {
         verify(chambreRepository).deleteAll(bloc.getChambres());
         verify(blocRepository).delete(bloc);
     }
+    @Test
+    void testDeleteById_WhenBlocExists() {
+        when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc));
+
+        blocService.deleteById(1L);
+
+        verify(chambreRepository).deleteAll(bloc.getChambres());
+        verify(blocRepository).delete(bloc);
+    }
+
+    @Test
+    void testDeleteById_WhenBlocDoesNotExist() {
+        when(blocRepository.findById(1L)).thenReturn(Optional.empty());
+
+        blocService.deleteById(1L);
+
+        verify(chambreRepository, never()).deleteAll(any());
+        verify(blocRepository, never()).delete(any());
+    }
+    @Test
+    void testAddOrUpdate2() {
+        // Prepare a Bloc with chambres
+        Bloc bloc = new Bloc();
+        List<Chambre> chambres = new ArrayList<>();
+
+        Chambre c1 = new Chambre();
+        Chambre c2 = new Chambre();
+
+        chambres.add(c1);
+        chambres.add(c2);
+
+        bloc.setChambres(chambres);
+
+        // Mock chambreRepository.save to return the passed chambre (optional)
+        when(chambreRepository.save(any(Chambre.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Call the method
+        Bloc result = blocService.addOrUpdate2(bloc);
+
+        // Verify each chambre's bloc is set correctly
+        for (Chambre c : chambres) {
+            assertEquals(bloc, c.getBloc());
+        }
+
+        // Verify save was called for each chambre
+        verify(chambreRepository, times(chambres.size())).save(any(Chambre.class));
+
+        // Assert the method returns the bloc itself
+        assertEquals(bloc, result);
+    }
+
 
     @Test
     void testDelete() {

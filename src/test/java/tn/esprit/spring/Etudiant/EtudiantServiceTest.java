@@ -22,7 +22,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 
 class EtudiantServiceTest {
-    private MockMvc mockMvc;
 
     @InjectMocks
     private EtudiantService etudiantService;
@@ -33,12 +32,6 @@ class EtudiantServiceTest {
     @Mock
     private ReservationRepository reservationRepository;
 
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(etudiantService).build();
-
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testAddOrUpdate() {
@@ -157,5 +150,21 @@ class EtudiantServiceTest {
         verify(etudiantRepository).getByNomEtAndPrenomEt(nom, prenom);
         verify(etudiantRepository).save(et);
     }
+    @Test
+    void testDesaffecterReservationAEtudiant_ReservationNotFound() {
+        String reservationId = "nonexistent";
+        String nom = "Ben";
+        String prenom = "Ali";
+
+        when(reservationRepository.findById(reservationId)).thenReturn(Optional.empty());
+
+        // Execute
+        etudiantService.desaffecterReservationAEtudiant(reservationId, nom, prenom);
+
+        // Verify that nothing else happens
+        verify(reservationRepository).findById(reservationId);
+        verifyNoMoreInteractions(etudiantRepository); // No student should be fetched or saved
+    }
+
 
 }

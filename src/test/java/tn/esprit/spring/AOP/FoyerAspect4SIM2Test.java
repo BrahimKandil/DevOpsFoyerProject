@@ -1,21 +1,21 @@
 package tn.esprit.spring.AOP;
 
-
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
- class FoyerAspect4SIM2Test {
+@ExtendWith(OutputCaptureExtension.class)
+class FoyerAspect4SIM2Test {
 
-    // Dummy service in target package to trigger aspects
-    public static class DummyService {
+    // Dummy service in same class
+    static class DummyService {
         public String ajouterElement(String input) {
             return "Added: " + input;
         }
@@ -25,33 +25,58 @@ import static org.junit.jupiter.api.Assertions.*;
         }
     }
 
-    @Test
-    void testAspectAdvices() {
-        // Create aspect instance, but override the profile() to call proceed()
-        FoyerAspect4SIM2 aspect = new FoyerAspect4SIM2() {
-            @Override
-            public Object profile(ProceedingJoinPoint pjp) throws Throwable {
-                long start = System.currentTimeMillis();
-                Object obj = pjp.proceed(); // call the actual method
-                long elapsedTime = System.currentTimeMillis() - start;
-                System.out.println("Method execution time: " + elapsedTime + " milliseconds.");
-                // You can add log capture here if needed
-                return obj;
-            }
-        };
+    // Custom test aspect with simplified pointcuts
+    @Aspect
+    static class TestAspect {
 
+        @Before("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.ajouter*(..))")
+        public void beforeAjouter(org.aspectj.lang.JoinPoint jp) {
+            System.out.println("Ranni méthode ajouter");
+        }
+
+        @Before("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.*(..))")
+        public void beforeAll(org.aspectj.lang.JoinPoint jp) {
+            System.out.println("ranni d5alt lil méthode " + jp.getSignature().getName());
+        }
+
+        @After("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.*(..))")
+        public void afterAll(org.aspectj.lang.JoinPoint jp) {
+            System.out.println("ranni 5rajt mil méthode " + jp.getSignature().getName());
+        }
+
+        @Around("execution(* tn.esprit.spring.AOP.FoyerAspect4SIM2Test.DummyService.*(..))")
+        public Object profile(ProceedingJoinPoint pjp) throws Throwable {
+            long start = System.currentTimeMillis();
+            Object obj = pjp.proceed();
+            long elapsedTime = System.currentTimeMillis() - start;
+            System.out.println("Method execution time: " + elapsedTime + " milliseconds.");
+            return obj;
+        }
+    }
+
+    @Test
+    void testAspectAdvicesAndLogs(CapturedOutput output) {
         DummyService target = new DummyService();
         AspectJProxyFactory factory = new AspectJProxyFactory(target);
-        factory.addAspect(aspect);
+        factory.addAspect(new TestAspect());
+
         DummyService proxy = factory.getProxy();
 
-        // Call method that matches @Before("ajouter*") advice
-        String addResult = proxy.ajouterElement("test");
-        assertEquals("Added: test", addResult);
+        // Call ajouterElement
+        String result1 = proxy.ajouterElement("test");
+        assertEquals("Added: test", result1);
 
-        // Call method that does not match ajouter* but matches others
-        String doResult = proxy.doSomething("foo");
-        assertEquals("Did: foo", doResult);
+        // Call doSomething
+        String result2 = proxy.doSomething("foo");
+        assertEquals("Did: foo", result2);
+
+        // Now verify logs
+        assertThat(output)
+                .contains("ranni d5alt lil méthode ajouterElement")
+                .contains("Ranni méthode ajouter")
+                .contains("ranni 5rajt mil méthode ajouterElement")
+                .contains("ranni d5alt lil méthode doSomething")
+                .contains("ranni 5rajt mil méthode doSomething")
+                .contains("Method execution time:");
     }
 }
-

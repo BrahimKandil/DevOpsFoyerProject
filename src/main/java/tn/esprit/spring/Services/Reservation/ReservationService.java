@@ -174,27 +174,11 @@ public class ReservationService implements IReservationService {
 
         }
     }
-
-    public LocalDate CalCulatedateDebutAU() {
-        int year = LocalDate.now().getYear() % 100;
-        if (LocalDate.now().getMonthValue() <= 7) {
-            return  LocalDate.of(Integer.parseInt("20" + (year - 1)), 9, 15);
-        } else {
-            return LocalDate.of(Integer.parseInt("20" + year), 9, 15);
-        }
-    }
-    public LocalDate CalCulatedateFinAU() {
-        int year = LocalDate.now().getYear() % 100;
-        if (LocalDate.now().getMonthValue() <= 7) {
-            return  LocalDate.of(Integer.parseInt("20" + year), 6, 30);
-        } else {
-            return LocalDate.of(Integer.parseInt("20" + (year + 1)), 6, 30);
-        }
-    }
     @Override
     public void annulerReservations() {
-        LocalDate dateDebutAU = CalCulatedateDebutAU();
-        LocalDate dateFinAU = CalCulatedateFinAU();
+        int year = LocalDate.now().getYear() % 100;
+        LocalDate dateDebutAU = (LocalDate.now().getMonthValue() <= 7) ? LocalDate.of(Integer.parseInt("20" + (year - 1)), 9, 15) : LocalDate.of(Integer.parseInt("20" + year), 9, 15);
+        LocalDate dateFinAU = (LocalDate.now().getMonthValue() <= 7) ?  LocalDate.of(Integer.parseInt("20" + year), 6, 30) : LocalDate.of(Integer.parseInt("20" + (year + 1)), 6, 30);
         // Fin "récuperer l'année universitaire actuelle"
         for (Reservation reservation : repo.findByEstValideAndAnneeUniversitaireBetween
                 (true, dateDebutAU, dateFinAU)) {
