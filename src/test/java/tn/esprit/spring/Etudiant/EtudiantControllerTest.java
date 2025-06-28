@@ -1,10 +1,13 @@
 package tn.esprit.spring.Etudiant;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.RestControllers.EtudiantRestController;
 import tn.esprit.spring.Services.Etudiant.EtudiantService;
@@ -33,19 +37,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 public class EtudiantControllerTest {
 
-    @Mock
     private MockMvc mockMvc;
-
-    @MockBean
-    private EtudiantService service;
-
-    @Mock
-    private ObjectMapper objectMapper;
-
-    private Etudiant sampleEtudiant;
-
     @BeforeEach
     void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(etudiantRestController).build();
         sampleEtudiant = Etudiant.builder()
                 .idEtudiant(1L)
                 .nomEt("Doe")
@@ -54,7 +49,25 @@ public class EtudiantControllerTest {
                 .ecole("ENIT")
                 .dateNaissance(LocalDate.of(1995, 5, 15))
                 .build();
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
+
+    @Mock
+    private EtudiantService service;
+
+    @InjectMocks
+    private ObjectMapper objectMapper;
+
+    private Etudiant sampleEtudiant;
+    @InjectMocks
+    private EtudiantRestController etudiantRestController;
+
+//    @BeforeEach
+//    void setup() {
+//
+//    }
 
     @Test
     void testFindAll() throws Exception {
@@ -91,14 +104,30 @@ public class EtudiantControllerTest {
     @Test
     void testDelete() throws Exception {
         // For delete, just mock doNothing on service.delete
+        Etudiant sampleEtudiant = new Etudiant();
+        sampleEtudiant.setIdEtudiant(1L);
+        sampleEtudiant.setNomEt("Doe");
+        sampleEtudiant.setPrenomEt("John");
+        sampleEtudiant.setCin(12345678L);
+        sampleEtudiant.setEcole("ENIT");
+        sampleEtudiant.setDateNaissance(LocalDate.of(1995, 5, 15));
+        sampleEtudiant.setReservations(null);
         doNothing().when(service).delete(any(Etudiant.class));
+
+        try {
+            String json = objectMapper.writeValueAsString(sampleEtudiant);
+            System.out.println("Serialized JSON: " + json);
 
         mockMvc.perform(delete("/etudiant/delete")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleEtudiant)))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk());
 
         verify(service).delete(any(Etudiant.class));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
