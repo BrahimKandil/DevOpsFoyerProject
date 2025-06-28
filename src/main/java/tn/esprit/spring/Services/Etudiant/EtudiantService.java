@@ -59,7 +59,7 @@ public class EtudiantService implements IEtudiantService {
     public void desaffecterReservationAEtudiant(String idR, String nomE, String prenomE) {
 
         Optional<Reservation> optionalReservation = reservationRepository.findById(idR);
-        if(optionalReservation.isEmpty()){
+        if(optionalReservation.isPresent()){
         Reservation res= optionalReservation.get();
         Etudiant et= repo.getByNomEtAndPrenomEt(nomE,prenomE);
         et.getReservations().remove(res);
