@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class test {
+public class Test {
 //
     @Scheduled(fixedRate = 300000)
     void affiche(){
