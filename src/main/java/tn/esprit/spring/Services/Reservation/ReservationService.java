@@ -11,6 +11,7 @@ import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 import tn.esprit.spring.DAO.Repositories.ReservationRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,7 +109,13 @@ public class ReservationService implements IReservationService {
                     .build();
 
             // Affectation de l'étudiant à la réservation
-            reservation.getEtudiants().add(etudiant);
+            ArrayList<Etudiant> etudiants = new ArrayList<>();
+            etudiants.add(etudiant);
+            if(reservation.getEtudiants() == null) {
+                reservation.setEtudiants(etudiants);
+            }else {
+                reservation.getEtudiants().addAll(etudiants);
+            }
 
             // Sauvegarde de la réservation
             reservation = repo.save(reservation);

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.DAO.Entities.Reservation;
 import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
@@ -20,6 +22,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 
 class EtudiantServiceTest {
+    private MockMvc mockMvc;
+
     @InjectMocks
     private EtudiantService etudiantService;
 
@@ -31,6 +35,8 @@ class EtudiantServiceTest {
 
     @BeforeEach
     void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(etudiantService).build();
+
         MockitoAnnotations.openMocks(this);
     }
 
