@@ -2,8 +2,6 @@ package tn.esprit.spring.AOP;
 
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 
-public class FoyerAspect4SIM2Test {
+ class FoyerAspect4SIM2Test {
 
     // Dummy service in target package to trigger aspects
     public static class DummyService {
@@ -28,7 +26,7 @@ public class FoyerAspect4SIM2Test {
     }
 
     @Test
-    void testAspectAdvices() throws Throwable {
+    void testAspectAdvices() {
         // Create aspect instance, but override the profile() to call proceed()
         FoyerAspect4SIM2 aspect = new FoyerAspect4SIM2() {
             @Override
@@ -36,6 +34,7 @@ public class FoyerAspect4SIM2Test {
                 long start = System.currentTimeMillis();
                 Object obj = pjp.proceed(); // call the actual method
                 long elapsedTime = System.currentTimeMillis() - start;
+                System.out.println("Method execution time: " + elapsedTime + " milliseconds.");
                 // You can add log capture here if needed
                 return obj;
             }

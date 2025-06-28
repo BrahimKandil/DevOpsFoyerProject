@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 
-public class IFoyerServiceTest {
+ class IFoyerServiceTest {
 
     @Mock
     private IFoyerService foyerService;

@@ -11,6 +11,7 @@ import tn.esprit.spring.DAO.Repositories.FoyerRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -48,14 +49,18 @@ public class BlocService implements IBlocService {
 
     @Override
     public Bloc findById(long id) {
-        return repo.findById(id).get();
+        Optional<Bloc> optionalBloc = repo.findById(id);
+        return optionalBloc.orElse(null);
     }
 
     @Override
     public void deleteById(long id) {
-        Bloc b =repo.findById(id).get();
-        chambreRepository.deleteAll(b.getChambres());
-        repo.delete(b);
+        Optional<Bloc> optionalBloc = repo.findById(id);
+        if (optionalBloc.isPresent()) {
+            Bloc b = optionalBloc.get();
+            chambreRepository.deleteAll(b.getChambres());
+            repo.delete(b);
+        }
     }
 
     @Override

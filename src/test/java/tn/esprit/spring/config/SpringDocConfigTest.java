@@ -1,4 +1,4 @@
-package tn.esprit.spring.Config;
+package tn.esprit.spring.config;
 
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class SpringDocConfigTest {
+class SpringDocConfigTest {
 
     @Autowired
     private ApplicationContext context;

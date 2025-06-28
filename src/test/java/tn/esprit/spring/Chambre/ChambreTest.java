@@ -9,16 +9,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ChambreTest {
+class ChambreTest {
 
     @Test
-    public void testNoArgsConstructor() {
+    void testNoArgsConstructor() {
         Chambre chambre = new Chambre();
         assertThat(chambre).isNotNull();
     }
 
     @Test
-    public void testAllArgsConstructor() {
+     void testAllArgsConstructor() {
         Bloc bloc = Bloc.builder().idBloc(1L).nomBloc("Bloc A").build();
         Chambre chambre = new Chambre(1L, 101L, TypeChambre.SIMPLE, bloc, List.of());
 
@@ -30,7 +30,7 @@ public class ChambreTest {
     }
 
     @Test
-    public void testBuilderPattern() {
+     void testBuilderPattern() {
         Bloc bloc = Bloc.builder().idBloc(2L).nomBloc("Bloc B").build();
 
         Chambre chambre = Chambre.builder()
@@ -48,7 +48,7 @@ public class ChambreTest {
     }
 
     @Test
-    public void testSettersAndGetters() {
+     void testSettersAndGetters() {
         Chambre chambre = new Chambre();
         chambre.setIdChambre(3L);
         chambre.setNumeroChambre(303L);
@@ -64,7 +64,7 @@ public class ChambreTest {
     }
 
     @Test
-    public void testReservationsDefaultInitialization() {
+     void testReservationsDefaultInitialization() {
         Chambre chambre = new Chambre();
         assertThat(chambre.getReservations()).isNotNull();
         assertThat(chambre.getReservations()).isEmpty();

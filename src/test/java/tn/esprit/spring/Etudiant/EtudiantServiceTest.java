@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 
-public class EtudiantServiceTest {
+class EtudiantServiceTest {
     @InjectMocks
     private EtudiantService etudiantService;
 
@@ -30,7 +30,7 @@ public class EtudiantServiceTest {
     private ReservationRepository reservationRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 

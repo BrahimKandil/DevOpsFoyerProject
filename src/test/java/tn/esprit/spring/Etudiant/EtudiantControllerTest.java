@@ -10,10 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,7 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.RestControllers.EtudiantRestController;
 import tn.esprit.spring.Services.Etudiant.EtudiantService;
-import tn.esprit.spring.Services.Etudiant.IEtudiantService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-public class EtudiantControllerTest {
+class EtudiantControllerTest {
 
     private MockMvc mockMvc;
     @BeforeEach
@@ -63,11 +58,6 @@ public class EtudiantControllerTest {
     private Etudiant sampleEtudiant;
     @InjectMocks
     private EtudiantRestController etudiantRestController;
-
-//    @BeforeEach
-//    void setup() {
-//
-//    }
 
     @Test
     void testFindAll() throws Exception {

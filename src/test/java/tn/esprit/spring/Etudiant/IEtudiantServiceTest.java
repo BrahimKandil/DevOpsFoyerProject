@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 
-public class IEtudiantServiceTest {
+class IEtudiantServiceTest {
     @Mock
     private IEtudiantService etudiantService;
 

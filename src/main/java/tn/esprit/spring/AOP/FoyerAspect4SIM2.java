@@ -34,10 +34,8 @@ public class FoyerAspect4SIM2 /* La classe: Aspect */  {
     public Object profile(ProceedingJoinPoint pjp) throws Throwable
     {
         long start = System.currentTimeMillis();
-        //Object obj = pjp.proceed();
         long elapsedTime = System.currentTimeMillis() - start;
         log.info("Method execution time: " + elapsedTime + " milliseconds.");
-        //return obj;
         return null;
     }
 }

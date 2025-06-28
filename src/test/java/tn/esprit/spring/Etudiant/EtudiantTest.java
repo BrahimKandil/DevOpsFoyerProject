@@ -9,16 +9,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EtudiantTest {
+class EtudiantTest {
 
     @Test
-    public void testNoArgsConstructor() {
+    void testNoArgsConstructor() {
         Etudiant etudiant = new Etudiant();
         assertThat(etudiant).isNotNull();
     }
 
     @Test
-    public void testAllArgsConstructor() {
+     void testAllArgsConstructor() {
         LocalDate birthDate = LocalDate.of(2000, 1, 15);
         Reservation res1 = new Reservation();
         Reservation res2 = new Reservation();
@@ -43,7 +43,7 @@ public class EtudiantTest {
     }
 
     @Test
-    public void testBuilder() {
+     void testBuilder() {
         LocalDate birthDate = LocalDate.of(1999, 5, 20);
 
         Etudiant etudiant = Etudiant.builder()
@@ -66,7 +66,7 @@ public class EtudiantTest {
     }
 
     @Test
-    public void testSettersAndGetters() {
+     void testSettersAndGetters() {
         Etudiant etudiant = new Etudiant();
         etudiant.setIdEtudiant(3L);
         etudiant.setNomEt("Trabelsi");
@@ -85,7 +85,7 @@ public class EtudiantTest {
     }
 
     @Test
-    public void testDefaultReservationsInitialization() {
+     void testDefaultReservationsInitialization() {
         Etudiant etudiant = new Etudiant();
         assertThat(etudiant.getReservations()).isNotNull();
         assertThat(etudiant.getReservations()).isEmpty();

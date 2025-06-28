@@ -19,7 +19,6 @@ import tn.esprit.spring.DAO.Entities.Foyer;
 import tn.esprit.spring.DAO.Entities.Universite;
 import tn.esprit.spring.RestControllers.FoyerRestController;
 import tn.esprit.spring.Services.Foyer.FoyerService;
-import tn.esprit.spring.Services.Foyer.IFoyerService;
 
 @ExtendWith(MockitoExtension.class)
 class FoyerControllerTest {

@@ -8,6 +8,7 @@ import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 import tn.esprit.spring.DAO.Repositories.ReservationRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -27,7 +28,8 @@ public class EtudiantService implements IEtudiantService {
 
     @Override
     public Etudiant findById(long id) {
-        return repo.findById(id).get();
+        Optional<Etudiant> optionalEtudiant = repo.findById(id);
+        return optionalEtudiant.orElse(null);
     }
 
     @Override
@@ -46,27 +48,21 @@ public class EtudiantService implements IEtudiantService {
     }
 
     @Override
-    public void affecterReservationAEtudiant
-            (String idR, String nomE, String prenomE) {
-        // ManyToMany: Reservation(Child) -- Etudiant(Parent)
-        // 1- Récupérer les objets
-        Reservation res= reservationRepository.findById(idR).get();
+    public void affecterReservationAEtudiant(String idR, String nomE, String prenomE) {
+        Optional<Reservation> optionalReservation = reservationRepository.findById(idR);
+        Reservation res= optionalReservation.orElse(null);
         Etudiant et= repo.getByNomEtAndPrenomEt(nomE,prenomE);
-        // 2- Affectation: On affecte le child au parent
         et.getReservations().add(res);
-        // 3- Save du parent
         repo.save(et);
     }
     @Override
-    public void desaffecterReservationAEtudiant
-            (String idR, String nomE, String prenomE) {
-        // ManyToMany: Reservation(Child) -- Etudiant(Parent)
-        // 1- Récupérer les objets
-        Reservation res= reservationRepository.findById(idR).get();
+    public void desaffecterReservationAEtudiant(String idR, String nomE, String prenomE) {
+
+        Optional<Reservation> optionalReservation = reservationRepository.findById(idR);
+        if(optionalReservation.isEmpty()){
+        Reservation res= optionalReservation.get();
         Etudiant et= repo.getByNomEtAndPrenomEt(nomE,prenomE);
-        // 2- Affectation: On desaffecte le child au parent
         et.getReservations().remove(res);
-        // 3- Save du parent
         repo.save(et);
-    }
+    }}
 }

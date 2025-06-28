@@ -1,12 +1,12 @@
 package tn.esprit.spring.Services.Universite;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.DAO.Entities.Universite;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -28,7 +28,8 @@ public class UniversiteService implements IUniversiteService {
 
     @Override
     public Universite findById(long id) {
-        return repo.findById(id).get();
+        Optional<Universite> optionalUniversite = repo.findById(id);
+        return optionalUniversite.orElse(null);
     }
 
     @Override

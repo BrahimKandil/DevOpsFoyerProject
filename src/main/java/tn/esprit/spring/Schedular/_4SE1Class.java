@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @Slf4j
 public class _4SE1Class {
 
-    @Scheduled(fixedDelay = 3000)
+    @Scheduled(fixedDelay = 300000)
     public void fixedDelayMethod() {
         log.info("Hello fixedDelay "+ LocalDateTime.now());
     }
 
-    @Scheduled(fixedRate = 3000)
+    @Scheduled(fixedRate = 300000)
     public void fixedRateMethod() {
        log.error("Hello fixedRate "+ LocalDateTime.now());
     }

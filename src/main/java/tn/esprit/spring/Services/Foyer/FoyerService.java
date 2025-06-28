@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.DAO.Entities.*;
 import tn.esprit.spring.DAO.Repositories.BlocRepository;
-import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 import tn.esprit.spring.DAO.Repositories.FoyerRepository;
 import tn.esprit.spring.DAO.Repositories.UniversiteRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -30,7 +30,8 @@ public class FoyerService implements IFoyerService {
 
     @Override
     public Foyer findById(long id) {
-        return repo.findById(id).get();
+        Optional<Foyer> optionalFoyer = repo.findById(id);
+        return optionalFoyer.orElse(null);
     }
 
     @Override
@@ -55,31 +56,26 @@ public class FoyerService implements IFoyerService {
 
     @Override
     public Foyer ajouterFoyerEtAffecterAUniversite(Foyer foyer, long idUniversite) {
-        // Récuperer la liste des blocs avant de faire l'ajout
         List<Bloc> blocs = foyer.getBlocs();
-        // Foyer est le child et universite est parent
         Foyer f = repo.save(foyer);
-        Universite u = universiteRepository.findById(idUniversite).get();
-        // Foyer est le child et bloc est le parent
-        //On affecte le child au parent
+        Optional<Universite> optionalUniversite = universiteRepository.findById(idUniversite);
+
+        if(optionalUniversite.isPresent()){
+            Universite u= optionalUniversite.get();
+
         for (Bloc bloc : blocs) {
             bloc.setFoyer(foyer);
             blocRepository.save(bloc);
         }
         u.setFoyer(f);
         return universiteRepository.save(u).getFoyer();
+    }else {
+            return null; // ou lancer une exception
+        }
     }
 
     @Override
     public Foyer ajoutFoyerEtBlocs(Foyer foyer) {
-        //Foyer child / Bloc parent
-        //Objet foyer = attribut objet foyer + les blocs associés
-//        Foyer f = repo.save(foyer);
-//        for (Bloc b : foyer.getBlocs()) {
-//            b.setFoyer(f);
-//            blocRepository.save(b);
-//        }
-//        return f;
         //-----------------------------------------
         List<Bloc> blocs = foyer.getBlocs();
         foyer = repo.save(foyer);
@@ -92,15 +88,25 @@ public class FoyerService implements IFoyerService {
 
     @Override
     public Universite affecterFoyerAUniversite(long idF, long idU) {
-        Universite u= universiteRepository.findById(idU).get();
-        Foyer f= foyerRepository.findById(idF).get();
+        Optional<Universite> optionalUniversite = universiteRepository.findById(idU);
+        Optional<Foyer> optionalFoyer = foyerRepository.findById(idF);
+        if(optionalUniversite.isPresent() && optionalFoyer.isPresent()){
+        Universite u= optionalUniversite.get();
+        Foyer f= optionalFoyer.get();
         u.setFoyer(f);
         return universiteRepository.save(u);
+    }else {
+            return null;
+        }
     }
 
     @Override
     public Universite desaffecterFoyerAUniversite(long idUniversite) {
-        Universite u = universiteRepository.findById(idUniversite).get(); // Parent
+        Optional<Universite> optionalUniversite = universiteRepository.findById(idUniversite);
+        if(optionalUniversite.isEmpty()){
+            return null; // ou lancer une exception
+        }
+        Universite u = optionalUniversite.get(); // Parent
         u.setFoyer(null);
         return universiteRepository.save(u);
     }

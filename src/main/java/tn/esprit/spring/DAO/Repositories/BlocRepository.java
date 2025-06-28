@@ -59,10 +59,6 @@ public interface BlocRepository extends JpaRepository<Bloc, Long> {
     // 6- Recherche par nomBloc contenant une sous-chaîne
     List<Bloc> findByNomBlocLike(String nom);
 
-    // 7- Tri par nomBloc par ordre alphabétique
-    //List<Bloc> findByNomBlocOrderBy(String nomB);
-
-
     // 8- Recherche par nomBloc ou capaciteBloc
     List<Bloc> getByNomBlocOrCapaciteBloc(String nomB, long cap);
 

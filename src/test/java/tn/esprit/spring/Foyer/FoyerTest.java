@@ -9,16 +9,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FoyerTest {
+ class FoyerTest {
 
     @Test
-    public void testNoArgsConstructor() {
+     void testNoArgsConstructor() {
         Foyer foyer = new Foyer();
         assertThat(foyer).isNotNull();
     }
 
     @Test
-    public void testAllArgsConstructor() {
+     void testAllArgsConstructor() {
         Bloc bloc1 = new Bloc();
         Bloc bloc2 = new Bloc();
 
@@ -37,7 +37,7 @@ public class FoyerTest {
     }
 
     @Test
-    public void testBuilder() {
+     void testBuilder() {
         Foyer foyer = Foyer.builder()
                 .idFoyer(2L)
                 .nomFoyer("Secondary Foyer")
@@ -52,7 +52,7 @@ public class FoyerTest {
     }
 
     @Test
-    public void testSettersAndGetters() {
+     void testSettersAndGetters() {
         Foyer foyer = new Foyer();
         foyer.setIdFoyer(3L);
         foyer.setNomFoyer("Test Foyer");
@@ -64,7 +64,7 @@ public class FoyerTest {
     }
 
     @Test
-    public void testDefaultBlocsInitialization() {
+     void testDefaultBlocsInitialization() {
         Foyer foyer = new Foyer();
         assertThat(foyer.getBlocs()).isNotNull();
         assertThat(foyer.getBlocs()).isEmpty();

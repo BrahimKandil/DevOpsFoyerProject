@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class FoyerServiceTest {
+ class FoyerServiceTest {
 
     @InjectMocks
     private FoyerService foyerService;
