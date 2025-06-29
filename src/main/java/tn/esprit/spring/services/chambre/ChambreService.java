@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -68,34 +69,43 @@ public class ChambreService implements IChambreService {
         return compteur;
     }
 
-    @Override
     public List<Chambre> getChambresNonReserveParNomFoyerEtTypeChambre(String nomFoyer, TypeChambre type) {
+        LocalDate now = LocalDate.now();
+        LocalDate dateDebutAU = (now.getMonthValue() <= 7)
+                ? LocalDate.of(Integer.parseInt("20" + (now.getYear() - 1)), 9, 15)
+                : LocalDate.of(Integer.parseInt("20" + now.getYear()), 9, 15);;
+        LocalDate dateFinAU = (now.getMonthValue() <= 7)
+                ? LocalDate.of(Integer.parseInt("20" + now.getYear()), 6, 30)
+                : LocalDate.of(Integer.parseInt("20" + (now.getYear() + 1)), 6, 30);;
 
-        int numReservation;
-        int year = LocalDate.now().getYear() % 100;
-
-        LocalDate dateDebutAU = (LocalDate.now().getMonthValue() <= 7) ? LocalDate.of(Integer.parseInt("20" + (year - 1)), 9, 15) : LocalDate.of(Integer.parseInt("20" + year), 9, 15);
-        LocalDate dateFinAU = (LocalDate.now().getMonthValue() <= 7) ? LocalDate.of(Integer.parseInt("20" + year), 6, 30) : LocalDate.of(Integer.parseInt("20" + (year + 1)), 6, 30);
-        List<Chambre> listChambreDispo = new ArrayList<>();
-        for (Chambre c : repo.findAll()) {
-            if (c.getTypeC().equals(type) && c.getBloc().getFoyer().getNomFoyer().equals(nomFoyer)) { // Les chambres du foyer X et qui ont le type Y
-                numReservation = 0;
-                for (Reservation reservation : c.getReservations()) {
-                    if (reservation.getAnneeUniversitaire().isBefore(dateFinAU) && reservation.getAnneeUniversitaire().isAfter(dateDebutAU)) {
-                        numReservation++;
-                    }
-                }
-                if (c.getTypeC().equals(TypeChambre.SIMPLE) && numReservation == 0) {
-                    listChambreDispo.add(c);
-                } else if (c.getTypeC().equals(TypeChambre.DOUBLE) && numReservation < 2) {
-                    listChambreDispo.add(c);
-                } else if (c.getTypeC().equals(TypeChambre.TRIPLE) && numReservation < 3) {
-                    listChambreDispo.add(c);
-                }
-            }
-        }
-        return listChambreDispo;
+        return repo.findAll().stream()
+                .filter(c -> isMatchingFoyerAndType(c, nomFoyer, type))
+                .filter(c -> isChambreAvailable(c, dateDebutAU, dateFinAU))
+                .collect(Collectors.toList());
     }
+
+     public boolean isMatchingFoyerAndType(Chambre c, String nomFoyer, TypeChambre type) {
+        return c.getTypeC() == type &&
+                c.getBloc() != null &&
+                c.getBloc().getFoyer() != null &&
+                nomFoyer.equals(c.getBloc().getFoyer().getNomFoyer());
+    }
+
+     public boolean isChambreAvailable(Chambre chambre, LocalDate debutAU, LocalDate finAU) {
+        int reservationCount = (int) chambre.getReservations().stream()
+                .filter(r -> {
+                    LocalDate date = r.getAnneeUniversitaire();
+                    return date != null && date.isAfter(debutAU) && date.isBefore(finAU);
+                })
+                .count();
+
+        return switch (chambre.getTypeC()) {
+            case SIMPLE -> reservationCount == 0;
+            case DOUBLE -> reservationCount < 2;
+            case TRIPLE -> reservationCount < 3;
+        };
+    }
+
 
     @Scheduled(fixedRate = 300000)
     public void listeChambresParBloc() {

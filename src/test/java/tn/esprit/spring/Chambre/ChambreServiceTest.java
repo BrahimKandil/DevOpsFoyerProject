@@ -14,7 +14,6 @@ import tn.esprit.spring.services.chambre.ChambreService;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import tn.esprit.spring.services.reservation.ReservationService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,8 +29,6 @@ class ChambreServiceTest {
 
     @Mock
     private BlocRepository blocRepository;
-    @Mock
-    ReservationService reservationService;
 
     // Use real service with injected mocks:
     private ChambreService chambreService;
@@ -195,6 +192,89 @@ class ChambreServiceTest {
             assertEquals(chambre2, result.get(0));
         }
     }
+    @Test
+    void testIsMatchingFoyerAndType_ShouldReturnTrue() {
+        Foyer foyer = new Foyer();
+        foyer.setNomFoyer("Foyer A");
+        Bloc bloc = new Bloc();
+        bloc.setFoyer(foyer);
+        Chambre chambre = new Chambre();
+        chambre.setTypeC(TypeChambre.SIMPLE);
+        chambre.setBloc(bloc);
+
+        assertTrue(chambreService.isMatchingFoyerAndType(chambre, "Foyer A", TypeChambre.SIMPLE));
+    }
+
+    @Test
+    void testIsMatchingFoyerAndType_ShouldReturnFalse_WhenWrongFoyer() {
+        Foyer foyer = new Foyer();
+        foyer.setNomFoyer("Foyer B");
+        Bloc bloc = new Bloc();
+        bloc.setFoyer(foyer);
+        Chambre chambre = new Chambre();
+        chambre.setTypeC(TypeChambre.SIMPLE);
+        chambre.setBloc(bloc);
+
+        assertFalse(chambreService.isMatchingFoyerAndType(chambre, "Foyer A", TypeChambre.SIMPLE));
+    }
+
+    @Test
+    void testIsMatchingFoyerAndType_ShouldReturnFalse_WhenWrongType() {
+        Foyer foyer = new Foyer();
+        foyer.setNomFoyer("Foyer A");
+        Bloc bloc = new Bloc();
+        bloc.setFoyer(foyer);
+        Chambre chambre = new Chambre();
+        chambre.setTypeC(TypeChambre.TRIPLE);
+        chambre.setBloc(bloc);
+
+        assertFalse(chambreService.isMatchingFoyerAndType(chambre, "Foyer A", TypeChambre.DOUBLE));
+    }
+
+    @Test
+    void testIsChambreAvailable_SimpleChambre_NoReservations_ShouldReturnTrue() {
+        Chambre chambre = new Chambre();
+        chambre.setTypeC(TypeChambre.SIMPLE);
+        chambre.setReservations(new ArrayList<>());
+
+        boolean result = chambreService.isChambreAvailable(chambre, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsChambreAvailable_DoubleChambre_OneReservationInRange_ShouldReturnTrue() {
+        Chambre chambre = new Chambre();
+        chambre.setTypeC(TypeChambre.DOUBLE);
+        chambre.setReservations(List.of(new Reservation())); // 1 in range
+        boolean result = chambreService.isChambreAvailable(chambre, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsChambreAvailable_TripleChambre_ThreeReservationsInRange_ShouldReturnFalse() {
+        Chambre chambre = new Chambre();
+        chambre.setTypeC(TypeChambre.TRIPLE);
+        ArrayList<Reservation> reservations = new ArrayList<>();
+        LocalDate now = LocalDate.now();
+        for(int i = 0; i < 3; i++) {
+            Reservation r = new Reservation();
+            if(i==0) {
+                r.setAnneeUniversitaire(now);
+
+            } else if (i==1) {
+                r.setAnneeUniversitaire(now.minusDays(1));
+
+            }else {
+                r.setAnneeUniversitaire(now.plusDays(1));
+            }
+            reservations.add(r);
+        }
+        chambre.setReservations(reservations);
+
+        boolean result = chambreService.isChambreAvailable(chambre, LocalDate.now().minusDays(2), LocalDate.now().plusDays(2));
+        assertFalse(result);
+    }
+
 
     @Test
     void testListeChambresParBloc() {
