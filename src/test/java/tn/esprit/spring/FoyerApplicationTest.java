@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest
-public class FoyerApplicationTest {
+class FoyerApplicationTest {
     @Test
     void applicationStarts() {
         assertDoesNotThrow(() -> FoyerApplication.main(new String[] {}));

@@ -100,7 +100,7 @@ class BlocControllerTest {
     }
 
     @Test
-    void testAffecterChambresABloc() throws Exception {
+    void testAffecterChambresABloc() {
         // Arrange
         List<Long> chambres = List.of(101L, 102L);
         String nomBloc = "Bloc G";
