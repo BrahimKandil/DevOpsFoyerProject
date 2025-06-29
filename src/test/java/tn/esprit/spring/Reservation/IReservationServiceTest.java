@@ -127,20 +127,19 @@ class IReservationServiceTest {
     }
 
     @Test
-    public void annulerReservation() {
+    void annulerReservation() {
         long cin = 12345678L; // Example CIN
         Reservation reservation = reservationRepository.findByEtudiantsCinAndEstValide(cin, true);
         if (reservation != null) {
             reservation.setEstValide(false); // ✅ make it invalid
 
             Chambre chambres = chambreRepository.findByReservationsIdReservation(reservation.getIdReservation());
-//            for (Chambre c : chambres) {
                 if (chambres.getReservations() != null) {
                     chambres.getReservations().removeIf(r -> r.getIdReservation().equals(reservation.getIdReservation()));
                 }
-//            }
 
-            reservationRepository.save(reservation);
+            Reservation result = reservationRepository.save(reservation);
+                assertThat(result).isNotNull();
         }
     }
 
@@ -167,7 +166,7 @@ class IReservationServiceTest {
         List<Reservation> reservations = List.of(r1, r2);
 
         when(reservationRepository.findByEstValideAndAnneeUniversitaireBetween(
-                eq(true), eq(dateDebutAU), eq(dateFinAU)))
+                true, dateDebutAU, dateFinAU))
                 .thenReturn(reservations);
 
         when(reservationRepository.save(any(Reservation.class)))
