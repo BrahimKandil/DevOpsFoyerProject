@@ -18,10 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.util.AssertionErrors.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 
@@ -185,35 +183,32 @@ class IReservationServiceTest {
 
     @Test
     void testAffectReservationAChambre() {
-        // Suppose affectReservationAChambre assigns a Chambre to a Reservation by IDs
         String reservationId = "R1";
         long chambreId = 1L;
 
         Reservation reservation = new Reservation();
         reservation.setIdReservation(reservationId);
 
-        // Mock chambre repository and reservation repo if needed (create mocks)
-        // For example assuming chambreRepository is injected in service
-        // and service has method findById for chambre and reservation
-
-        // We create mock chambre and stub repo calls:
-        tn.esprit.spring.dao.entities.Chambre chambre = new tn.esprit.spring.dao.entities.Chambre();
+        Chambre chambre = new Chambre();
         chambre.setIdChambre(chambreId);
+        chambre.setReservations(new ArrayList<>());
 
-        when(reservationRepository.findById(reservationId)).thenReturn(java.util.Optional.of(reservation));
-        // Assuming you have chambreRepository mock (add it if missing)
-        // when(chambreRepository.findById(chambreId)).thenReturn(Optional.of(chambre));
+        when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(chambreRepository.findById(chambreId)).thenReturn(Optional.of(chambre));
+        when(chambreRepository.save(any(Chambre.class))).thenAnswer(i -> i.getArgument(0));
 
-        // Mock save
-        when(reservationRepository.save(any(Reservation.class))).thenAnswer(i -> i.getArgument(0));
-
-        // Call method under test
         reservationService.affectReservationAChambre(reservationId, chambreId);
-        List<Reservation> reservations = reservationRepository.findByChambreIdChambre(chambreId);
-        // Assertions
-        assertThat(reservations).isNotNull();
-        verify(reservationRepository).save(reservation);
+
+        // Verify chambreRepository.save is called because your method saves chambre, not reservation
+        verify(chambreRepository).save(chambre);
+
+        // Optionally, verify reservationRepository.save is never called
+        verify(reservationRepository, never()).save(any());
+
+        // Also check chambre's reservations contains the reservation
+        assertTrue(chambre.getReservations().contains(reservation));
     }
+
 
     @Test
     void testDeaffectReservationAChambre() {
