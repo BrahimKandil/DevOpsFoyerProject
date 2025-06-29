@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Component
 @Slf4j
-public class S_4SE1Class {
+public class S4SE1Class {
 
     @Scheduled(fixedDelay = 300000)
     public void fixedDelayMethod() {

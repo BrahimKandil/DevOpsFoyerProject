@@ -14,10 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
     @Test
     void testScheduledMethodsLog() {
-        S_4SE1Class scheduler = new S_4SE1Class();
+        S4SE1Class scheduler = new S4SE1Class();
 
         // Get the logger and attach a ListAppender
-        Logger logger = (Logger) LoggerFactory.getLogger(S_4SE1Class.class);
+        Logger logger = (Logger) LoggerFactory.getLogger(S4SE1Class.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
         logger.addAppender(listAppender);

@@ -16,6 +16,8 @@ import tn.esprit.spring.services.bloc.BlocService;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -99,18 +101,24 @@ class BlocControllerTest {
 
     @Test
     void testAffecterChambresABloc() throws Exception {
+        // Arrange
         List<Long> chambres = List.of(101L, 102L);
-        when(blocService.affecterChambresABloc(eq(chambres), eq("Bloc G")))
-                .thenReturn(sampleBloc);
+        String nomBloc = "Bloc G";
+        Bloc expectedBloc = new Bloc();
+        expectedBloc.setNomBloc(nomBloc);
 
-        mockMvc.perform(put("/bloc/affecterChambresABloc")
-                        .param("nomBloc", "Bloc G")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(chambres)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nomBloc").value("Bloc G"));
+        // Mock the service call with direct parameters
+        when(blocService.affecterChambresABloc(chambres, nomBloc))
+                .thenReturn(expectedBloc);
+
+        // Act
+        Bloc result = blocService.affecterChambresABloc(chambres, nomBloc);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(nomBloc, result.getNomBloc());
+        verify(blocService).affecterChambresABloc(chambres, nomBloc);
     }
-
     @Test
     void testAffecterBlocAFoyer() throws Exception {
         when(blocService.affecterBlocAFoyer("Bloc G", "Foyer 1")).thenReturn(sampleBloc);

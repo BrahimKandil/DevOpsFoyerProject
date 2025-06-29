@@ -94,18 +94,18 @@ class EtudiantControllerTest {
     @Test
     void testDelete(){
         // For delete, just mock doNothing on service.delete
-        Etudiant sampleEtudiant = new Etudiant();
-        sampleEtudiant.setIdEtudiant(1L);
-        sampleEtudiant.setNomEt("Doe");
-        sampleEtudiant.setPrenomEt("John");
-        sampleEtudiant.setCin(12345678L);
-        sampleEtudiant.setEcole("ENIT");
-        sampleEtudiant.setDateNaissance(LocalDate.of(1995, 5, 15));
-        sampleEtudiant.setReservations(null);
+        Etudiant sampleEtudiant1 = new Etudiant();
+        sampleEtudiant1.setIdEtudiant(1L);
+        sampleEtudiant1.setNomEt("Doe");
+        sampleEtudiant1.setPrenomEt("John");
+        sampleEtudiant1.setCin(12345678L);
+        sampleEtudiant1.setEcole("ENIT");
+        sampleEtudiant1.setDateNaissance(LocalDate.of(1995, 5, 15));
+        sampleEtudiant1.setReservations(null);
         doNothing().when(service).delete(any(Etudiant.class));
 
         try {
-            String json = objectMapper.writeValueAsString(sampleEtudiant);
+            String json = objectMapper.writeValueAsString(sampleEtudiant1);
             System.out.println("Serialized JSON: " + json);
 
         mockMvc.perform(delete("/etudiant/delete")

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import tn.esprit.spring.dao.entities.Foyer;
 import tn.esprit.spring.dao.entities.Universite;
@@ -27,8 +26,6 @@ class FoyerControllerTest {
     private FoyerService service;
 
     private FoyerRestController controller;
-
-    private final ObjectMapper objectMapper = new ObjectMapper(); // if needed for manual serialization
 
     Foyer sampleFoyer;
     Universite sampleUniversite;
@@ -50,8 +47,8 @@ class FoyerControllerTest {
     }
 
     @Test
-    void testAddOrUpdate() throws Exception {
-        try {
+    void testAddOrUpdate()  {
+
             when(service.addOrUpdate(any(Foyer.class))).thenReturn(sampleFoyer);
 
             Foyer response = controller.addOrUpdate(sampleFoyer);
@@ -59,14 +56,11 @@ class FoyerControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.getIdFoyer()).isEqualTo(1L);
             assertThat(response.getNomFoyer()).isEqualTo("Main Foyer");
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
-    void testFindAll() throws Exception {
-        try {
+    void testFindAll() {
+
             when(service.findAll()).thenReturn(List.of(sampleFoyer));
 
             List<Foyer> response = controller.findAll();
@@ -74,100 +68,71 @@ class FoyerControllerTest {
             assertThat(response).isNotEmpty();
             assertThat(response.get(0).getIdFoyer()).isEqualTo(1L);
             assertThat(response.get(0).getNomFoyer()).isEqualTo("Main Foyer");
-        }catch (Exception e) {
-            e.printStackTrace();
 
-        }
     }
 
     @Test
-    void testFindById() throws Exception {
-        try {
+    void testFindById() {
+
             when(service.findById(1L)).thenReturn(sampleFoyer);
 
             Foyer response = controller.findById(1L);
 
             assertThat(response).isNotNull();
             assertThat(response.getCapaciteFoyer()).isEqualTo(100L);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Test
-    void testDelete() throws Exception {
-        try {
-            // delete method returns void in many controllers
-            // so just call it; here, if it returns anything, assert accordingly
+    void testDelete() {
+
             controller.delete(sampleFoyer);
-            // no exception means success
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+            assertThat(controller.findById(1L)).isNull(); // Assuming findById returns null if not found
     }
 
     @Test
-    void testDeleteById() throws Exception {
-        try {
+    void testDeleteById()  {
             controller.deleteById(1L);
-            // no exception means success
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        assertThat(controller.findById(1L)).isNull(); // Assuming findById returns null if not found
+
+        // no exception means success
+
     }
 
     @Test
-    void testAffecterFoyerAUniversite_ByIdAndName() throws Exception {
-        try {
+    void testAffecterFoyerAUniversite_ByIdAndName(){
             when(service.affecterFoyerAUniversite(1L, "Test University")).thenReturn(sampleUniversite);
 
             Universite response = controller.affecterFoyerAUniversite(1L, "Test University");
 
             assertThat(response).isNotNull();
             assertThat(response.getNomUniversite()).isEqualTo("Test University");
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Test
-    void testDesaffecterFoyerAUniversite() throws Exception {
-        try {
-
-
+    void testDesaffecterFoyerAUniversite() {
             when(service.desaffecterFoyerAUniversite(1L)).thenReturn(sampleUniversite);
 
             Universite response = controller.desaffecterFoyerAUniversite(1L);
 
             assertThat(response).isNotNull();
             assertThat(response.getIdUniversite()).isEqualTo(1L);
-        } catch (Exception e) {
-            // Handle exception if needed
-            e.printStackTrace();
-        }
     }
 
 
     @Test
-    void testAjouterFoyerEtAffecterAUniversite() throws Exception {
-        try {
-
-
+    void testAjouterFoyerEtAffecterAUniversite() {
         when(service.ajouterFoyerEtAffecterAUniversite(any(Foyer.class), eq(1L))).thenReturn(sampleFoyer);
 
         Foyer response = controller.ajouterFoyerEtAffecterAUniversite(sampleFoyer, 1L);
 
         assertThat(response).isNotNull();
         assertThat(response.getIdFoyer()).isEqualTo(1L);
-    }catch (Exception e) {
-            // Handle exception if needed
-            e.printStackTrace();
-        }
     }
 
     @Test
-    void testAffecterFoyerAUniversite_ByPathVariables() throws Exception {
-       try {
+    void testAffecterFoyerAUniversite_ByPathVariables() {
 
 
         when(service.affecterFoyerAUniversite(1L, 1L)).thenReturn(sampleUniversite);
@@ -176,9 +141,5 @@ class FoyerControllerTest {
 
         assertThat(response).isNotNull();
         assertThat(response.getIdUniversite()).isEqualTo(1L);
-    }catch (Exception e) {
-            // Handle exception if needed
-            e.printStackTrace();
-        }
     }
 }

@@ -6,16 +6,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.dao.entities.Bloc;
 import tn.esprit.spring.dao.entities.Chambre;
-import tn.esprit.spring.dao.entities.Reservation;
 import tn.esprit.spring.dao.entities.TypeChambre;
 import tn.esprit.spring.dao.repositories.BlocRepository;
 import tn.esprit.spring.dao.repositories.ChambreRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -68,22 +65,21 @@ public class ChambreService implements IChambreService {
         }
         return compteur;
     }
-
+    @Override
     public List<Chambre> getChambresNonReserveParNomFoyerEtTypeChambre(String nomFoyer, TypeChambre type) {
         LocalDate now = LocalDate.now();
         LocalDate dateDebutAU = (now.getMonthValue() <= 7)
                 ? LocalDate.of(Integer.parseInt("20" + (now.getYear() - 1)), 9, 15)
-                : LocalDate.of(Integer.parseInt("20" + now.getYear()), 9, 15);;
+                : LocalDate.of(Integer.parseInt("20" + now.getYear()), 9, 15);
         LocalDate dateFinAU = (now.getMonthValue() <= 7)
                 ? LocalDate.of(Integer.parseInt("20" + now.getYear()), 6, 30)
-                : LocalDate.of(Integer.parseInt("20" + (now.getYear() + 1)), 6, 30);;
+                : LocalDate.of(Integer.parseInt("20" + (now.getYear() + 1)), 6, 30);
 
         return repo.findAll().stream()
                 .filter(c -> isMatchingFoyerAndType(c, nomFoyer, type))
                 .filter(c -> isChambreAvailable(c, dateDebutAU, dateFinAU))
-                .collect(Collectors.toList());
+                .toList();  // <- replaced here
     }
-
      public boolean isMatchingFoyerAndType(Chambre c, String nomFoyer, TypeChambre type) {
         return c.getTypeC() == type &&
                 c.getBloc() != null &&

@@ -104,7 +104,7 @@ class BlocServiceTest {
     @Test
     void testAddOrUpdate2() {
         // Prepare a Bloc with chambres
-        Bloc bloc = new Bloc();
+        Bloc blocx = new Bloc();
         List<Chambre> chambres = new ArrayList<>();
 
         Chambre c1 = new Chambre();
@@ -113,24 +113,24 @@ class BlocServiceTest {
         chambres.add(c1);
         chambres.add(c2);
 
-        bloc.setChambres(chambres);
+        blocx.setChambres(chambres);
 
         // Mock chambreRepository.save to return the passed chambre (optional)
         when(chambreRepository.save(any(Chambre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Call the method
-        Bloc result = blocService.addOrUpdate2(bloc);
+        Bloc result = blocService.addOrUpdate2(blocx);
 
         // Verify each chambre's bloc is set correctly
         for (Chambre c : chambres) {
-            assertEquals(bloc, c.getBloc());
+            assertEquals(blocx, c.getBloc());
         }
 
         // Verify save was called for each chambre
         verify(chambreRepository, times(chambres.size())).save(any(Chambre.class));
 
         // Assert the method returns the bloc itself
-        assertEquals(bloc, result);
+        assertEquals(blocx, result);
     }
 
 
