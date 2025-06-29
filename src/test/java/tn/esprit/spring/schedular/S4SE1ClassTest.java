@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
- class _S_4SE1ClassTest {
+ class S4SE1ClassTest {
 
     @Test
     void testScheduledMethodsLog() {

@@ -29,25 +29,5 @@ class SchedularTest {
         schedular.service1();
         verify(chambreService, times(1)).listeChambresParBloc();
     }
-
-// Uncomment and add tests if you enable those scheduled methods:
-
-//    @Test
-//    void testService2_callsPourcentageChambreParTypeChambre() {
-//        schedular.service2();
-//        verify(chambreService, times(1)).pourcentageChambreParTypeChambre();
-//    }
-//
-//    @Test
-//    void testService3_callsNbPlacesDisponibleParChambreAnneeEnCours() {
-//        schedular.service3();
-//        verify(chambreService, times(1)).nbPlacesDisponibleParChambreAnneeEnCours();
-//    }
-//
-//    @Test
-//    void testService4_callsAnnulerReservations() {
-//        schedular.service4();
-//        verify(reservationService, times(1)).annulerReservations();
-//    }
 }
 

@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import tn.esprit.spring.dao.entities.Universite;
 import tn.esprit.spring.dao.repositories.UniversiteRepository;
 import tn.esprit.spring.services.universite.UniversiteService;
@@ -20,7 +19,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 
 class UniversiteServiceTest {
-    private MockMvc mockMvc;
 
     @Mock
     private UniversiteRepository universiteRepository;
@@ -32,8 +30,6 @@ class UniversiteServiceTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(universiteService).build();
-
         universite = Universite.builder()
                 .idUniversite(1L)
                 .nomUniversite("Université de Tunis")
@@ -59,8 +55,7 @@ class UniversiteServiceTest {
 
         List<Universite> result = universiteService.findAll();
 
-        assertThat(result).isNotEmpty();
-        assertThat(result).hasSize(1);
+        assertThat(result).isNotEmpty().hasSize(1);
         verify(universiteRepository, times(1)).findAll();
     }
 
