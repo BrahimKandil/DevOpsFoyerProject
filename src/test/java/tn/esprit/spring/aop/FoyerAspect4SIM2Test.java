@@ -1,7 +1,5 @@
 package tn.esprit.spring.aop;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.junit.jupiter.api.Test;
