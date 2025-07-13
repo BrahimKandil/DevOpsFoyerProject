@@ -3,7 +3,7 @@ package tn.esprit.spring.restcontrollers;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.dao.entities.Bloc;
-import tn.esprit.spring.services.bloc.IBlocService;
+import tn.esprit.spring.services.bloc.BlocService;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("bloc")
 @AllArgsConstructor
 public class BlocRestController {
-    IBlocService service;
+    BlocService service;
 
     @PostMapping("addOrUpdate")
     Bloc addOrUpdate(@RequestBody Bloc b) {

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.dao.entities.Foyer;
 import tn.esprit.spring.dao.entities.Universite;
-import tn.esprit.spring.services.foyer.IFoyerService;
+import tn.esprit.spring.services.foyer.FoyerService;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("foyer")
 @AllArgsConstructor
 public class FoyerRestController {
-    IFoyerService service;
+    FoyerService service;
 
     @PostMapping("addOrUpdate")
     public Foyer addOrUpdate(@RequestBody Foyer f) {

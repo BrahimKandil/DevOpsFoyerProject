@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.dao.entities.Chambre;
 import tn.esprit.spring.dao.entities.TypeChambre;
-import tn.esprit.spring.services.chambre.IChambreService;
+import tn.esprit.spring.services.chambre.ChambreService;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping("chambre")
 @AllArgsConstructor
 public class ChambreRestController {
-    IChambreService service;
+    ChambreService service;
 
     @PostMapping("addOrUpdate")
     Chambre addOrUpdate(@RequestBody Chambre c) {

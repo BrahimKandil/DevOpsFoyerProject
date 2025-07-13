@@ -3,7 +3,7 @@ package tn.esprit.spring.restcontrollers;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.dao.entities.Etudiant;
-import tn.esprit.spring.services.etudiant.IEtudiantService;
+import tn.esprit.spring.services.etudiant.EtudiantService;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("etudiant")
 @AllArgsConstructor
 public class EtudiantRestController {
-    IEtudiantService service;
+    EtudiantService service;
 
     @PostMapping("addOrUpdate")
     Etudiant addOrUpdate(@RequestBody Etudiant e) {

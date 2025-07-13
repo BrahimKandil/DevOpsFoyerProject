@@ -1,5 +1,7 @@
 package tn.esprit.spring.aop;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(OutputCaptureExtension.class)
 class FoyerAspect4SIM2Test {
+    private ListAppender<ILoggingEvent> listAppender;
 
     // Dummy service in same class
     static class DummyService {
@@ -79,4 +82,5 @@ class FoyerAspect4SIM2Test {
                 .contains("ranni 5rajt mil méthode doSomething")
                 .contains("Method execution time:");
     }
+    
 }

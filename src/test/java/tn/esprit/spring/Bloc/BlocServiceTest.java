@@ -76,18 +76,9 @@ class BlocServiceTest {
     }
 
     @Test
-    void testDeleteById() {
-        when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc));
-        blocService.deleteById(1L);
-        verify(chambreRepository).deleteAll(bloc.getChambres());
-        verify(blocRepository).delete(bloc);
-    }
-    @Test
     void testDeleteById_WhenBlocExists() {
         when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc));
-
         blocService.deleteById(1L);
-
         verify(chambreRepository).deleteAll(bloc.getChambres());
         verify(blocRepository).delete(bloc);
     }
