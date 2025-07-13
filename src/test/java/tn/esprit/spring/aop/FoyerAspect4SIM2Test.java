@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(OutputCaptureExtension.class)
 class FoyerAspect4SIM2Test {
-    private ListAppender<ILoggingEvent> listAppender;
 
     // Dummy service in same class
     static class DummyService {
@@ -34,7 +33,7 @@ class FoyerAspect4SIM2Test {
 
         @Before("execution(* tn.esprit.spring.aop.FoyerAspect4SIM2Test.DummyService.ajouter*(..))")
         public void beforeAjouter(org.aspectj.lang.JoinPoint jp) {
-            System.out.println("Ranni méthode ajouter");
+            System.out.println("Ranni méthode ajouter" + jp.getSignature().getName());
         }
 
         @Before("execution(* tn.esprit.spring.aop.FoyerAspect4SIM2Test.DummyService.*(..))")
