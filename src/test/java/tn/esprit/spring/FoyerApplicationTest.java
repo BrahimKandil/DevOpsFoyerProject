@@ -9,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest
-@TestPropertySource(properties = "eureka.client.enabled=false")
-
 class FoyerApplicationTest {
     @Test
     void applicationStarts() {
