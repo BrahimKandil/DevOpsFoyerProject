@@ -1,65 +1,71 @@
 package tn.esprit.spring.restcontrollers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.dao.entities.Bloc;
 import tn.esprit.spring.services.bloc.BlocService;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("bloc")
+@RequestMapping("/bloc")
 @AllArgsConstructor
-public class BlocRestController {
-    BlocService service;
+@RestController
 
-    @PostMapping("addOrUpdate")
+public class BlocRestController {
+    private BlocService service;
+    @GetMapping("/test")
+    public String test() {
+        return "Service is up";
+    }
+
+    @PostMapping("/addOrUpdate")
     Bloc addOrUpdate(@RequestBody Bloc b) {
         return service.addOrUpdate(b);
     }
 
-    @GetMapping("findAll")
+    @GetMapping("/findAll")
     List<Bloc> findAll() {
         return service.findAll();
     }
 
-    @GetMapping("findById")
+    @GetMapping("/findById")
     Bloc findById(@RequestParam long id) {
         return service.findById(id);
     }
 
-    @DeleteMapping("delete")
+    @DeleteMapping("/delete")
     void delete(@RequestBody Bloc b) {
         service.delete(b);
     }
 
-    @DeleteMapping("deleteById")
+    @DeleteMapping("/deleteById")
     void deleteById(@RequestParam long id) {
         service.deleteById(id);
     }
 
-    @PutMapping("affecterChambresABloc")
+    @PutMapping("/affecterChambresABloc")
     Bloc affecterChambresABloc(@RequestBody List<Long> numChambre, @RequestParam String nomBloc) {
         return service.affecterChambresABloc(numChambre, nomBloc);
     }
     // ...............?nomFoyer=....&nomBloc=....
-    @PutMapping("affecterBlocAFoyer")
+    @PutMapping("/affecterBlocAFoyer")
     Bloc affecterBlocAFoyer(@RequestParam String nomBloc, @RequestParam String nomFoyer) {
         return service.affecterBlocAFoyer(nomBloc, nomFoyer);
     }
 
     // .............../Foyer des jasmins/Bloc G
-    @PutMapping("affecterBlocAFoyer2/{nomFoyer}/{nomBloc}")
+    @PutMapping("/affecterBlocAFoyer2/{nomFoyer}/{nomBloc}")
     Bloc affecterBlocAFoyer2(@PathVariable String nomBloc, @PathVariable String nomFoyer) {
         return service.affecterBlocAFoyer(nomBloc, nomFoyer);
     }
 
-    @PostMapping("ajouterBlocEtSesChambres")
+    @PostMapping("/ajouterBlocEtSesChambres")
     Bloc ajouterBlocEtSesChambres(@RequestBody Bloc b) {
         return service.ajouterBlocEtSesChambres(b);
     }
 
-    @PostMapping("ajouterBlocEtAffecterAFoyer/{nomF}")
+    @PostMapping("/ajouterBlocEtAffecterAFoyer/{nomF}")
     Bloc ajouterBlocEtAffecterAFoyer(@RequestBody Bloc b,@PathVariable String nomF) {
         return service.ajouterBlocEtAffecterAFoyer(b,nomF);
     }
