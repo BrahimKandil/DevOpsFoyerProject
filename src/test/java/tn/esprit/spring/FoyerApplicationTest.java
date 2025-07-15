@@ -2,12 +2,15 @@ package tn.esprit.spring;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest
+@TestPropertySource(properties = "eureka.client.enabled=false")
+
 class FoyerApplicationTest {
     @Test
     void applicationStarts() {
