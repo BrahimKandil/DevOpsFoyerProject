@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tn.esprit.spring.dao.entities.Universite;
 import tn.esprit.spring.restcontrollers.UniversiteRestController;
-import tn.esprit.spring.services.universite.IUniversiteService;
 import tn.esprit.spring.services.universite.UniversiteService;
 
 import java.util.*;
